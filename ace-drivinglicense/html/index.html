@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Licenses Online Services</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+<div class="tablet-overlay">
+<div class="tablet-frame">
+<div class="tablet-screen">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════════════════════ -->
+<header class="govuk-header">
+    <div class="govuk-header__container">
+        <div class="govuk-header__logo">
+            <span class="govuk-header__logotype-crown">&#10022;&#10022;&#10022;</span>
+            <span class="govuk-header__logotype-text">UKC.UK</span>
+        </div>
+        <div class="govuk-header__divider"></div>
+        <div class="govuk-header__service-name">Driver &amp; Vehicle Licensing Agency</div>
+        <button class="govuk-header__close" id="btnClose" title="Close">&#x2715;</button>
+    </div>
+</header>
+
+<!-- Sub-header -->
+<div class="dvla-subheader">
+    <span class="dvla-badge">Licenses</span>
+    <span class="dvla-subheader__text">UK Central — Digital Services Portal</span>
+    <nav class="dvla-nav" id="dvlaNav">
+        <a href="#" class="dvla-nav__link" data-section="dashboard">Home</a>
+        <a href="#" class="dvla-nav__link" data-section="section-licence">My Licence</a>
+        <a href="#" class="dvla-nav__link" data-section="section-penalty">Penalty Points</a>
+        <a href="#" class="dvla-nav__link" data-section="section-history">Test History</a>
+        <a href="#" class="dvla-nav__link" data-section="section-replace">Replace Licence</a>
+    </nav>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE WRAPPER
+═══════════════════════════════════════════════════════════════ -->
+<main class="govuk-main-wrapper" id="main-content">
+
+    <!-- ──────────────────────────────── DASHBOARD ─── -->
+    <section id="section-dashboard">
+        <div class="govuk-width-container">
+            <div class="dvla-welcome-toast" id="welcomeToast">
+                <span class="dvla-welcome-icon">&#x2139;</span>
+                <span id="welcomeMsg">Welcome to Licenses UK Central Digital Services Portal.</span>
+            </div>
+
+            <h1 class="govuk-heading-xl">Licenses Online Services</h1>
+            <p class="govuk-body-l">Welcome, <strong id="playerName">—</strong></p>
+
+            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+            <!-- Status Cards -->
+            <div class="dvla-status-cards">
+                <div class="dvla-status-card">
+                    <div class="dvla-status-card__label">&#128196; LICENCE</div>
+                    <div class="dvla-status-card__value" id="statusLicence">—</div>
+                </div>
+                <div class="dvla-status-card">
+                    <div class="dvla-status-card__label">&#9651; POINTS</div>
+                    <div class="dvla-status-card__value" id="statusPoints">0 / 12</div>
+                </div>
+                <div class="dvla-status-card">
+                    <div class="dvla-status-card__label">&#128209; THEORY</div>
+                    <div class="dvla-status-card__value" id="statusTheory">—</div>
+                </div>
+                <div class="dvla-status-card">
+                    <div class="dvla-status-card__label">&#128664; PRACTICAL</div>
+                    <div class="dvla-status-card__value" id="statusPractical">—</div>
+                </div>
+            </div>
+
+            <!-- Service Grid -->
+            <div class="dvla-service-grid">
+                <div class="dvla-service-card" data-section="section-theory">
+                    <div class="dvla-service-card__icon">&#128209;</div>
+                    <div class="dvla-service-card__content">
+                        <h3 class="dvla-service-card__title">Theory Test</h3>
+                        <p class="dvla-service-card__desc">Take your UK Highway Code multiple-choice test.</p>
+                        <a href="#" class="govuk-link">Start test &rarr;</a>
+                    </div>
+                </div>
+                <div class="dvla-service-card" data-section="section-practical">
+                    <div class="dvla-service-card__icon">&#128664;</div>
+                    <div class="dvla-service-card__content">
+                        <h3 class="dvla-service-card__title">Practical Test</h3>
+                        <p class="dvla-service-card__desc">Take your on-road driving test with an AI examiner in the passenger seat.</p>
+                        <a href="#" class="govuk-link">Start test &rarr;</a>
+                    </div>
+                </div>
+                <div class="dvla-service-card" data-section="section-licence">
+                    <div class="dvla-service-card__icon">&#128196;</div>
+                    <div class="dvla-service-card__content">
+                        <h3 class="dvla-service-card__title">My Licence</h3>
+                        <p class="dvla-service-card__desc">View your driving licence details and current status.</p>
+                        <a href="#" class="govuk-link">View licence &rarr;</a>
+                    </div>
+                </div>
+                <div class="dvla-service-card" data-section="section-penalty">
+                    <div class="dvla-service-card__icon">&#9888;</div>
+                    <div class="dvla-service-card__content">
+                        <h3 class="dvla-service-card__title">Penalty Points</h3>
+                        <p class="dvla-service-card__desc">Check your endorsement record and points tally.</p>
+                        <a href="#" class="govuk-link">View points &rarr;</a>
+                    </div>
+                </div>
+                <div class="dvla-service-card" data-section="section-mot">
+                    <div class="dvla-service-card__icon">&#128295;</div>
+                    <div class="dvla-service-card__content">
+                        <h3 class="dvla-service-card__title">MOT Test</h3>
+                        <p class="dvla-service-card__desc">Book your vehicle's annual roadworthiness inspection.</p>
+                        <a href="#" class="govuk-link">Book MOT &rarr;</a>
+                    </div>
+                </div>
+                <div class="dvla-service-card" data-section="section-history">
+                    <div class="dvla-service-card__icon">&#128196;</div>
+                    <div class="dvla-service-card__content">
+                        <h3 class="dvla-service-card__title">Test History</h3>
+                        <p class="dvla-service-card__desc">Review your previous theory and practical results.</p>
+                        <a href="#" class="govuk-link">View history &rarr;</a>
+                    </div>
+                </div>
+                <div class="dvla-service-card" data-section="section-replace">
+                    <div class="dvla-service-card__icon">&#128260;</div>
+                    <div class="dvla-service-card__content">
+                        <h3 class="dvla-service-card__title">Replace Licence</h3>
+                        <p class="dvla-service-card__desc">Lost or stolen licence? Order a replacement driving licence.</p>
+                        <a href="#" class="govuk-link">Apply now &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ──────────────────────────────── THEORY TEST INFO ─── -->
+    <section id="section-theory" hidden>
+        <div class="govuk-width-container">
+            <a href="#" class="govuk-back-link" data-section="dashboard">Back</a>
+            <h1 class="govuk-heading-xl">Theory Test</h1>
+
+            <div id="theoryAlreadyPassed" hidden>
+                <div class="dvla-alert dvla-alert--success">
+                    <span class="dvla-alert__icon">&#10003;</span>
+                    <div>
+                        <strong>Already Passed</strong>
+                        <p>You have already passed your theory test.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="theoryCanTake">
+                <div class="govuk-inset-text">
+                    This test contains <strong>15</strong> questions from the UK Highway Code.
+                    You must score at least <strong>12</strong> correct answers within <strong>8 minutes</strong>.
+                </div>
+                <p class="govuk-body">Read each question carefully and select one answer. Your answers are submitted automatically when the timer expires.</p>
+                <button class="govuk-button govuk-button--start" id="btnStartTheory">
+                    &#9654; Start Test Now
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ──────────────────────────────── THEORY TEST ACTIVE ─── -->
+    <section id="section-theory-test" hidden>
+        <div class="govuk-width-container">
+            <div class="dvla-test-header">
+                <div class="dvla-test-progress">
+                    Question <span id="qCurrent">1</span> of <span id="qTotal">15</span>
+                </div>
+                <div class="dvla-test-timer" id="testTimer">8:00</div>
+            </div>
+
+            <div class="dvla-progress-bar">
+                <div class="dvla-progress-bar__fill" id="testProgress"></div>
+            </div>
+
+            <div class="dvla-question-card">
+                <p class="dvla-question-text" id="questionText">Question text here</p>
+                <div class="dvla-answers" id="answersContainer"></div>
+            </div>
+
+            <div class="dvla-test-nav">
+                <button class="govuk-button govuk-button--secondary" id="btnPrevQ" disabled>&#8592; Previous</button>
+                <button class="govuk-button" id="btnNextQ">Next &rarr;</button>
+                <button class="govuk-button dvla-button--submit" id="btnSubmitTest" hidden>Submit Test</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ──────────────────────────────── THEORY RESULT ─── -->
+    <section id="section-theory-result" hidden>
+        <div class="govuk-width-container">
+            <h1 class="govuk-heading-xl">Theory Test Result</h1>
+            <div id="theoryResultBox"></div>
+            <button class="govuk-button govuk-button--secondary" data-section="dashboard" style="margin-top:16px">Return to Dashboard</button>
+        </div>
+    </section>
+
+    <!-- ──────────────────────────────── PRACTICAL TEST ─── -->
+    <section id="section-practical" hidden>
+        <div class="govuk-width-container">
+            <a href="#" class="govuk-back-link" data-section="dashboard">Back</a>
+            <h1 class="govuk-heading-xl">Practical Driving Test</h1>
+
+            <!-- Already passed all available categories (shown alongside category picker) -->
+            <div id="practicalAlreadyPassed" hidden>
+                <div class="dvla-alert dvla-alert--success">
+                    <span class="dvla-alert__icon">&#10003;</span>
+                    <div>
+                        <strong>Full Licence Holder</strong>
+                        <p>Categories held: <strong id="heldCategoriesDisplay">—</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Need theory first -->
+            <div id="practicalNeedTheory" hidden>
+                <div class="dvla-alert dvla-alert--warning">
+                    <span class="dvla-alert__icon">&#9888;</span>
+                    <div>
+                        <strong>Theory Test Required</strong>
+                        <p>You must pass your Theory Test before you can book a Practical Test.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Can book -->
+            <!-- Category picker -->
+            <div id="practicalCanBook" hidden>
+                <div class="dvla-alert dvla-alert--info" style="margin-bottom:1.5rem;">
+                    <span class="dvla-alert__icon">&#129302;</span>
+                    <div>
+                        <strong>AI Examiner Test</strong>
+                        <p>Select a licence category below. An AI examiner will oversee your test. Follow the GPS route, observe speed limits and avoid collisions.</p>
+                    </div>
+                </div>
+
+                <div class="govuk-inset-text" style="margin-bottom:1.5rem;">
+                    <ul class="govuk-list govuk-list--bullet" style="margin:0;">
+                        <li>Exceeding the speed limit earns minor faults</li>
+                        <li>Serious collisions are an instant major fault and termination</li>
+                        <li>Do <strong>not</strong> leave the test vehicle</li>
+                        <li>More than 15 minor faults or any major fault = fail</li>
+                    </ul>
+                </div>
+
+                <h2 class="govuk-heading-m">Select Licence Category</h2>
+                <div id="categoryCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem;"></div>
+
+                <div id="practicalError" class="dvla-alert dvla-alert--error" hidden>
+                    <span class="dvla-alert__icon">&#10005;</span>
+                    <div id="practicalErrorMsg"></div>
+                </div>
+
+                <button class="govuk-button" id="btnBookPractical" disabled style="margin-top:0.5rem;">
+                    Begin Test
+                </button>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ──────────────────────────────── MOT TEST ─── -->
+    <section id="section-mot" hidden>
+        <div class="govuk-width-container">
+            <a href="#" class="govuk-back-link" data-section="dashboard">Back</a>
+            <h1 class="govuk-heading-xl">MOT Test</h1>
+
+            <p class="govuk-body">All vehicles over 3 years old must hold a valid MOT certificate under the Road Traffic Act 1988.</p>
+
+            <div class="dvla-alert dvla-alert--warning">
+                <span class="dvla-alert__icon">&#9888;</span>
+                <p>Driving without a valid MOT may result in a fixed penalty notice and 3 penalty points.</p>
+            </div>
+
+            <div class="govuk-inset-text">
+                Drive your vehicle to an approved MOT testing centre. A qualified mechanic will inspect your vehicle and issue a pass or fail certificate. Cost: <strong>£55</strong>.
+            </div>
+
+            <!-- Booking status -->
+            <div id="motBookedNotice" hidden>
+                <div class="dvla-alert dvla-alert--info">
+                    <span class="dvla-alert__icon">&#128336;</span>
+                    <div>
+                        <strong>MOT Booked — Awaiting Inspection</strong>
+                        <p>Your MOT for <strong id="motBookedPlate">—</strong> has been booked. A mechanic has been notified and will inspect your vehicle. Please remain with your vehicle.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="motBookForm">
+                <div class="govuk-form-group">
+                    <label class="govuk-label" for="motPlate">Vehicle Registration Plate</label>
+                    <div class="dvla-plate-row">
+                        <input class="govuk-input govuk-input--width-10 dvla-plate-input" type="text" id="motPlate" placeholder="e.g. AB12 CDE" maxlength="8">
+                        <button class="govuk-button govuk-button--secondary dvla-plate-fetch" id="btnGetPlate">&#128663; Use Current Vehicle</button>
+                    </div>
+                </div>
+                <div id="motBookError" class="dvla-alert dvla-alert--error" hidden>
+                    <span class="dvla-alert__icon">&#10005;</span>
+                    <div id="motBookErrorMsg"></div>
+                </div>
+                <button class="govuk-button" id="btnBookMOT">Book MOT</button>
+            </div>
+
+            <!-- Inspector Terminal -->
+            <div id="motInspectorTerminal" hidden>
+                <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                <div class="dvla-inspector-banner">
+                    <span>&#128295;</span>
+                    <div>
+                        <strong>MOT Inspector Terminal</strong>
+                        <p>You are logged in as an authorised MOT tester. Review pending inspections below. You can also book your own vehicle for MOT using the form above.</p>
+                    </div>
+                </div>
+
+                <div class="dvla-queue-header">
+                    <h2 class="govuk-heading-m">Pending MOT Queue</h2>
+                    <button class="dvla-refresh-btn" id="btnRefreshMOT">&#8635; Refresh</button>
+                </div>
+
+                <div id="motQueue">
+                    <p class="govuk-body dvla-empty">No vehicles pending inspection.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MOT Inspect Modal -->
+    <div id="modalMOT" class="dvla-modal" hidden>
+        <div class="dvla-modal__box">
+            <h2 class="govuk-heading-m">MOT Inspection</h2>
+            <p class="govuk-body">Vehicle: <strong id="motInspectPlate">—</strong></p>
+            <p class="govuk-body">Owner: <strong id="motInspectOwner">—</strong></p>
+            <input type="hidden" id="motInspectCitizenId">
+
+            <div class="govuk-form-group">
+                <label class="govuk-label" for="motNotes">Inspection Notes / Failure Reason</label>
+                <textarea class="govuk-textarea" id="motNotes" rows="3" placeholder="Optional notes..."></textarea>
+            </div>
+
+            <div class="dvla-modal__actions">
+                <button class="govuk-button dvla-button--pass" id="btnMOTPass">&#10003; Pass</button>
+                <button class="govuk-button dvla-button--fail" id="btnMOTFail">&#10005; Fail</button>
+                <button class="govuk-button govuk-button--secondary" id="btnMOTCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ──────────────────────────────── MY LICENCE ─── -->
+    <section id="section-licence" hidden>
+        <div class="govuk-width-container">
+            <a href="#" class="govuk-back-link" data-section="dashboard">Back</a>
+            <h1 class="govuk-heading-xl">My Driving Licence</h1>
+
+            <div class="dvla-licence-card">
+                <div class="dvla-licence-card__header">
+                    <div>
+                        <span class="dvla-licence-card__country">UK<br>GB</span>
+                        <div>
+                            <div class="dvla-licence-card__agency">Driver &amp; Vehicle Licensing Agency</div>
+                            <div class="dvla-licence-card__country-full">UNITED KINGDOM OF GREAT BRITAIN</div>
+                        </div>
+                    </div>
+                    <div class="dvla-licence-card__brand">DVLA</div>
+                </div>
+                <hr class="dvla-licence-card__divider">
+                <table class="dvla-licence-table">
+                    <tr>
+                        <td>Full name</td>
+                        <td id="licName">—</td>
+                    </tr>
+                    <tr>
+                        <td>Licence type</td>
+                        <td id="licType">—</td>
+                    </tr>
+                    <tr>
+                        <td>Issue date</td>
+                        <td id="licIssueDate">—</td>
+                    </tr>
+                    <tr>
+                        <td>Theory test</td>
+                        <td id="licTheory">—</td>
+                    </tr>
+                    <tr>
+                        <td>Practical test</td>
+                        <td id="licPractical">—</td>
+                    </tr>
+                    <tr>
+                        <td>Current status</td>
+                        <td id="licStatus">—</td>
+                    </tr>
+                    <tr>
+                        <td>Penalty points</td>
+                        <td id="licPoints">—</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ──────────────────────────────── PENALTY POINTS ─── -->
+    <section id="section-penalty" hidden>
+        <div class="govuk-width-container">
+            <a href="#" class="govuk-back-link" data-section="dashboard">Back</a>
+            <h1 class="govuk-heading-xl">Penalty Points Record</h1>
+
+            <div class="dvla-points-bar-container">
+                <div class="dvla-points-bar-label">
+                    <span>Penalty Points</span>
+                    <span id="pointsTotal">0 / 12</span>
+                </div>
+                <div class="dvla-points-bar">
+                    <div class="dvla-points-bar__fill" id="pointsBarFill"></div>
+                </div>
+                <div class="dvla-points-bar-ticks">
+                    <span>3</span><span>6</span><span>9</span><span>12</span>
+                </div>
+            </div>
+
+            <div class="govuk-inset-text">
+                Penalty points are endorsed on your licence for a minimum of 4 years.
+                Totalling 12 or more points within 3 years triggers automatic disqualification.
+            </div>
+
+            <h2 class="govuk-heading-m">Endorsement History</h2>
+            <table class="govuk-table">
+                <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                        <th class="govuk-table__header">Offence</th>
+                        <th class="govuk-table__header">Points</th>
+                        <th class="govuk-table__header">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="govuk-table__body" id="penaltyTableBody">
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell dvla-empty" colspan="3">No endorsements on record.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ──────────────────────────────── TEST HISTORY ─── -->
+    <section id="section-history" hidden>
+        <div class="govuk-width-container">
+            <a href="#" class="govuk-back-link" data-section="dashboard">Back</a>
+            <h1 class="govuk-heading-xl">Test History</h1>
+
+            <h2 class="govuk-heading-m">Theory Test Results</h2>
+            <table class="govuk-table">
+                <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                        <th class="govuk-table__header">Score</th>
+                        <th class="govuk-table__header">Result</th>
+                        <th class="govuk-table__header">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="govuk-table__body" id="theoryHistoryBody">
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell dvla-empty" colspan="3">No theory test records.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2 class="govuk-heading-m">Practical Test Results</h2>
+            <table class="govuk-table">
+                <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                        <th class="govuk-table__header">Centre</th>
+                        <th class="govuk-table__header">Minor Faults</th>
+                        <th class="govuk-table__header">Major Faults</th>
+                        <th class="govuk-table__header">Result</th>
+                        <th class="govuk-table__header">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="govuk-table__body" id="practicalHistoryBody">
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell dvla-empty" colspan="5">No practical test records.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ──────────────────────────────── REPLACE LICENCE ─── -->
+    <section id="section-replace" hidden>
+        <div class="govuk-width-container">
+            <a href="#" class="govuk-back-link" data-section="dashboard">Back</a>
+            <h1 class="govuk-heading-xl">Replace Driving Licence</h1>
+
+            <!-- No licence on record -->
+            <div id="replaceNoLicence" hidden>
+                <div class="dvla-alert dvla-alert--warning">
+                    <span class="dvla-alert__icon">&#9888;</span>
+                    <div>
+                        <strong>No Licence on Record</strong>
+                        <p>You do not hold a driving licence that can be replaced. You must pass your theory and practical tests first.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Already have licence item in inventory -->
+            <div id="replaceAlreadyHave" hidden>
+                <div class="dvla-alert dvla-alert--info">
+                    <span class="dvla-alert__icon">&#8505;</span>
+                    <div>
+                        <strong>Licence Already in Possession</strong>
+                        <p>Your driving licence is already in your inventory. A replacement is only issued if your licence is lost or stolen.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Can apply -->
+            <div id="replaceCanApply" hidden>
+                <div class="govuk-inset-text">
+                    You can apply for a replacement if your driving licence has been <strong>lost, stolen or destroyed</strong>.
+                    A replacement licence will be issued with your existing categories and entitlements intact.
+                </div>
+
+                <div class="dvla-alert dvla-alert--warning" style="margin-bottom: 1.5rem;">
+                    <span class="dvla-alert__icon">&#9888;</span>
+                    <div>
+                        <strong>Replacement Fee: £20</strong>
+                        <p>A statutory fee applies for all replacement licences. This will be deducted from your account on submission.</p>
+                    </div>
+                </div>
+
+                <table class="govuk-table" style="margin-bottom: 1.5rem;">
+                    <caption class="govuk-table__caption govuk-table__caption--s">Your licence details to be reissued</caption>
+                    <tbody class="govuk-table__body">
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell" style="width:40%">Name</td>
+                            <td class="govuk-table__cell" id="replaceName">—</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">Licence type</td>
+                            <td class="govuk-table__cell" id="replaceLicType">—</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">Categories held</td>
+                            <td class="govuk-table__cell" id="replaceCategories">—</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">Original issue date</td>
+                            <td class="govuk-table__cell" id="replaceIssueDate">—</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div id="replaceSuccess" hidden>
+                    <div class="dvla-alert dvla-alert--success">
+                        <span class="dvla-alert__icon">&#10003;</span>
+                        <div>
+                            <strong>Replacement Issued</strong>
+                            <p>Your replacement driving licence has been added to your inventory.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="replaceError" class="dvla-alert dvla-alert--error" hidden>
+                    <span class="dvla-alert__icon">&#10005;</span>
+                    <div id="replaceErrorMsg"></div>
+                </div>
+
+                <button class="govuk-button" id="btnReplaceLicence">
+                    &#128260; Apply for Replacement &mdash; £20
+                </button>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════════════════ -->
+<footer class="govuk-footer">
+    <div class="govuk-footer__links">
+        <a href="#" class="govuk-footer__link">Privacy</a>
+        <a href="#" class="govuk-footer__link">Accessibility statement</a>
+        <a href="#" class="govuk-footer__link">Contact DVLA</a>
+        <a href="#" class="govuk-footer__link">Cookies</a>
+    </div>
+    <p class="govuk-footer__meta">&copy; Crown copyright &mdash; Driver &amp; Vehicle Licensing Agency, United Kingdom</p>
+</footer>
+
+<script src="js/app.js"></script>
+</div><!-- tablet-screen -->
+</div><!-- tablet-frame / monitor bezel -->
+<div class="monitor-neck"></div>
+<div class="monitor-base"></div>
+<div class="monitor-desk"></div>
+</div><!-- tablet-overlay -->
+</div>
+</body>
+</html>
