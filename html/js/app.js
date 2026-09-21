@@ -4,6 +4,60 @@
 
 'use strict';
 
+// ─── Language (locale) ───────────────────────────────────────────────────────
+// The dictionary comes from the client script (RegisterNUICallback 'locale' -> LocaleDict()).
+// English stays in the HTML/JS as the default; keys live in locales/en.lua.
+
+var RESOURCE = typeof GetParentResourceName === 'function' ? GetParentResourceName() : 'as-drivingschool';
+
+// NUI locale helper. English text stays in the HTML as the default, so the page is never blank if the
+// dictionary is late; once the dictionary arrives applyI18n() swaps in the chosen language.
+// Markup: the attributes data-i18n (text), data-i18n-placeholder, data-i18n-title and data-i18n-aria-label
+// name a locale key; the element keeps its English text as the default.
+// In JS call t with a key plus arguments: %s / %d placeholders are filled in order; a missing key returns the key.
+var I18N = {};
+function t(key) {
+    var s = Object.prototype.hasOwnProperty.call(I18N, key) ? I18N[key] : key;
+    var args = Array.prototype.slice.call(arguments, 1), i = 0;
+    return String(s).replace(/%[sd]/g, function () { return i < args.length ? args[i++] : ''; });
+}
+function applyI18n(root) {
+    root = root || document;
+    root.querySelectorAll('[data-i18n]').forEach(function (el) { if (I18N[el.dataset.i18n] != null) el.textContent = t(el.dataset.i18n); });
+    ['placeholder', 'title', 'aria-label'].forEach(function (a) {
+        root.querySelectorAll('[data-i18n-' + a + ']').forEach(function (el) {
+            var k = el.getAttribute('data-i18n-' + a); if (I18N[k] != null) el.setAttribute(a, t(k));
+        });
+    });
+}
+// RESOURCE = this resource's name. The client script answers this callback with LocaleDict().
+function loadLocale(cb) {
+    fetch('https://' + RESOURCE + '/locale', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (d && typeof d === 'object') { I18N = d; } applyI18n(); if (cb) cb(); })
+        .catch(function () { if (cb) cb(); });
+}
+
+// Elements marked data-i18n-html hold a little markup (<strong> ...) inside the locale string.
+function applyI18nHtml() {
+    document.querySelectorAll('[data-i18n-html]').forEach(function (el) {
+        var k = el.getAttribute('data-i18n-html');
+        if (I18N[k] != null) el.innerHTML = t(k);
+    });
+}
+
+function localeReady() { return Object.keys(I18N).length > 0; }
+
+// Loads the dictionary if it is not there yet, then re-renders whatever is on screen.
+function ensureLocale(after) {
+    if (localeReady()) return;
+    loadLocale(function () {
+        applyI18nHtml();
+        if (State.playerData) renderAll();
+        if (after) after();
+    });
+}
+
 // ─── State ───────────────────────────────────────────────────────────────────
 
 const State = {
@@ -43,6 +97,7 @@ window.addEventListener('message', (e) => {
             document.getElementById('app').classList.add('ui-open');
             State.playerData = msg.data;
             if (msg.data.questions) THEORY_QUESTIONS = msg.data.questions;
+            ensureLocale();
             renderAll();
             showSection('dashboard');
             break;
@@ -84,7 +139,8 @@ function renderAll() {
     const d = State.playerData;
     if (!d) return;
 
-    document.getElementById('playerName').textContent = d.playerName || '—';
+    document.getElementById('welcomeLine').innerHTML =
+        t('ui.dash.welcome', '<strong id="playerName">' + esc(d.playerName || '—') + '</strong>');
 
     renderStatusCards();
     renderLicence();
@@ -92,7 +148,6 @@ function renderAll() {
     renderHistory();
     renderTheoryPage();
     renderPracticalPage();
-    renderMOTPage();
     renderReplacePage();
 }
 
@@ -102,17 +157,17 @@ function renderStatusCards() {
     const lic = State.playerData.licence;
 
     const licType = lic ? lic.licence_type : 'none';
-    const labels = { none: 'No Licence', provisional: 'Provisional', full: 'Full Licence', suspended: 'Suspended' };
+    const labels = { none: t('ui.status.noLicence'), provisional: t('ui.status.provisional'), full: t('ui.status.full'), suspended: t('ui.status.suspended') };
     document.getElementById('statusLicence').textContent = labels[licType] || licType;
 
     const pts = lic ? (lic.penalty_points || 0) : 0;
     document.getElementById('statusPoints').textContent = pts + ' / 12';
 
     const theoryPassed = lic && lic.theory_passed;
-    document.getElementById('statusTheory').textContent = theoryPassed ? '✓ Passed' : '✗ Not Passed';
+    document.getElementById('statusTheory').textContent = theoryPassed ? t('ui.passedTick') : t('ui.notPassedCross');
 
     const practPassed = lic && lic.practical_passed;
-    document.getElementById('statusPractical').textContent = practPassed ? '✓ Passed' : '✗ Not Passed';
+    document.getElementById('statusPractical').textContent = practPassed ? t('ui.passedTick') : t('ui.notPassedCross');
 }
 
 // ─── My Licence ──────────────────────────────────────────────────────────────
@@ -123,20 +178,20 @@ function renderLicence() {
 
     document.getElementById('licName').textContent = d.playerName || '—';
 
-    const typeMap = { none: 'No Licence', provisional: 'Provisional Licence', full: 'Full Licence', suspended: 'Suspended' };
+    const typeMap = { none: t('ui.lic.typeNone'), provisional: t('ui.lic.typeProvisional'), full: t('ui.lic.typeFull'), suspended: t('ui.lic.typeSuspended') };
     document.getElementById('licType').textContent = typeMap[lic.licence_type] || lic.licence_type;
     document.getElementById('licIssueDate').textContent = lic.issue_date || '—';
-    document.getElementById('licTheory').innerHTML   = lic.theory_passed    ? 'Passed ✓' : '<span style="color:#d4351c">Not Passed</span>';
-    document.getElementById('licPractical').innerHTML= lic.practical_passed ? 'Passed ✓' : '<span style="color:#d4351c">Not Passed</span>';
+    document.getElementById('licTheory').innerHTML   = lic.theory_passed    ? esc(t('ui.lic.passed')) : '<span style="color:#d4351c">' + esc(t('ui.lic.notPassed')) + '</span>';
+    document.getElementById('licPractical').innerHTML= lic.practical_passed ? esc(t('ui.lic.passed')) : '<span style="color:#d4351c">' + esc(t('ui.lic.notPassed')) + '</span>';
 
     const statusMap = {
-        none:        '<span class="dvla-badge-status dvla-badge-status--none">NO LICENCE</span>',
-        provisional: '<span class="dvla-badge-status dvla-badge-status--provisional">VALID — PROVISIONAL</span>',
-        full:        '<span class="dvla-badge-status dvla-badge-status--full">VALID — FULL</span>',
-        suspended:   '<span class="dvla-badge-status dvla-badge-status--suspended">DISQUALIFIED</span>',
+        none:        '<span class="dvla-badge-status dvla-badge-status--none">' + esc(t('ui.lic.statusNone')) + '</span>',
+        provisional: '<span class="dvla-badge-status dvla-badge-status--provisional">' + esc(t('ui.lic.statusProvisional')) + '</span>',
+        full:        '<span class="dvla-badge-status dvla-badge-status--full">' + esc(t('ui.lic.statusFull')) + '</span>',
+        suspended:   '<span class="dvla-badge-status dvla-badge-status--suspended">' + esc(t('ui.lic.statusSuspended')) + '</span>',
     };
     document.getElementById('licStatus').innerHTML = statusMap[lic.licence_type] || lic.licence_type;
-    document.getElementById('licPoints').textContent = (lic.penalty_points || 0) + ' / 12 points';
+    document.getElementById('licPoints').textContent = t('ui.lic.pointsOf', lic.penalty_points || 0);
 }
 
 // ─── Penalty Points ───────────────────────────────────────────────────────────
@@ -159,7 +214,7 @@ function renderPenalty() {
 
     if (penalties.length === 0) {
         tbody.innerHTML = `<tr class="govuk-table__row">
-            <td class="govuk-table__cell dvla-empty" colspan="3">No endorsements on record.</td>
+            <td class="govuk-table__cell dvla-empty" colspan="3">${esc(t('ui.pen.empty'))}</td>
         </tr>`;
         return;
     }
@@ -182,13 +237,13 @@ function renderHistory() {
     const tBody = document.getElementById('theoryHistoryBody');
     const theory = d.theoryTests || [];
     if (theory.length === 0) {
-        tBody.innerHTML = `<tr class="govuk-table__row"><td class="govuk-table__cell dvla-empty" colspan="3">No theory test records.</td></tr>`;
+        tBody.innerHTML = `<tr class="govuk-table__row"><td class="govuk-table__cell dvla-empty" colspan="3">${esc(t('ui.hist.emptyTheory'))}</td></tr>`;
     } else {
-        tBody.innerHTML = theory.map(t => `
+        tBody.innerHTML = theory.map(r => `
             <tr class="govuk-table__row">
-                <td class="govuk-table__cell">${t.score}/${t.max_score || 15}</td>
-                <td class="govuk-table__cell">${t.passed ? '<span class="dvla-badge-pass">PASS</span>' : '<span class="dvla-badge-fail">FAIL</span>'}</td>
-                <td class="govuk-table__cell">${esc(t.date)}</td>
+                <td class="govuk-table__cell">${r.score}/${r.max_score || 15}</td>
+                <td class="govuk-table__cell">${r.passed ? '<span class="dvla-badge-pass">' + esc(t('ui.hist.pass')) + '</span>' : '<span class="dvla-badge-fail">' + esc(t('ui.hist.fail')) + '</span>'}</td>
+                <td class="govuk-table__cell">${esc(r.date)}</td>
             </tr>
         `).join('');
     }
@@ -197,14 +252,14 @@ function renderHistory() {
     const pBody = document.getElementById('practicalHistoryBody');
     const pract = d.practicalTests || [];
     if (pract.length === 0) {
-        pBody.innerHTML = `<tr class="govuk-table__row"><td class="govuk-table__cell dvla-empty" colspan="5">No practical test records.</td></tr>`;
+        pBody.innerHTML = `<tr class="govuk-table__row"><td class="govuk-table__cell dvla-empty" colspan="5">${esc(t('ui.hist.emptyPractical'))}</td></tr>`;
     } else {
         pBody.innerHTML = pract.map(p => `
             <tr class="govuk-table__row">
                 <td class="govuk-table__cell">${esc(p.centre || '—')}</td>
                 <td class="govuk-table__cell">${p.minor_faults}</td>
                 <td class="govuk-table__cell">${p.major_faults}</td>
-                <td class="govuk-table__cell">${p.passed ? '<span class="dvla-badge-pass">PASS</span>' : '<span class="dvla-badge-fail">FAIL</span>'}</td>
+                <td class="govuk-table__cell">${p.passed ? '<span class="dvla-badge-pass">' + esc(t('ui.hist.pass')) + '</span>' : '<span class="dvla-badge-fail">' + esc(t('ui.hist.fail')) + '</span>'}</td>
                 <td class="govuk-table__cell">${esc(p.date)}</td>
             </tr>
         `).join('');
@@ -221,8 +276,8 @@ function renderTheoryPage() {
     document.getElementById('theoryAlreadyPassed').hidden = !passed;
     document.getElementById('theoryNeedBooking').hidden = !needBooking;
     document.getElementById('theoryCanTake').hidden = !!passed || needBooking;
-    const fee = document.getElementById('theoryFee');
-    if (fee) fee.textContent = '£' + ((d.fees && d.fees.theory) || 0);
+    const bookText = document.getElementById('theoryBookText');
+    if (bookText) bookText.innerHTML = t('ui.theory.bookBody', '<span id="theoryFee">£' + ((d.fees && d.fees.theory) || 0) + '</span>');
 }
 
 // ─── Practical Page ───────────────────────────────────────────────────────────
@@ -242,10 +297,10 @@ function renderPracticalPage() {
     document.getElementById('practicalCanBook').hidden    = needTheory;
 
     // Show held categories banner if any
-    const heldDisplay = document.getElementById('heldCategoriesDisplay');
     if (held.length > 0) {
         document.getElementById('practicalAlreadyPassed').hidden = false;
-        if (heldDisplay) heldDisplay.textContent = held.join(' · ');
+        const heldLine = document.getElementById('heldCategoriesLine');
+        if (heldLine) heldLine.innerHTML = t('ui.prac.categoriesHeld', '<strong id="heldCategoriesDisplay">' + esc(held.join(' · ')) + '</strong>');
     } else {
         document.getElementById('practicalAlreadyPassed').hidden = true;
     }
@@ -261,10 +316,10 @@ function renderPracticalPage() {
         const booked     = !d.bookingRequired || !!(d.bookings && d.bookings.practical && d.bookings.practical[cat.label] > 0);
         const available  = !isHeld && reqsMet && booked;
         let statusBadge  = '';
-        if (isHeld)       statusBadge = '<span class="dvla-badge-pass" style="font-size:0.75rem;">HELD ✓</span>';
-        else if (!reqsMet) statusBadge = '<span style="color:#d4351c;font-size:0.75rem;">Requires: ' + (cat.requires||[]).join(', ') + '</span>';
-        else if (!booked)  statusBadge = '<span style="color:#b45309;font-size:0.75rem;">Book on lsgov.co.uk — £' + ((d.fees && d.fees.practical) || 0) + '</span>';
-        else if (d.bookingRequired) statusBadge = '<span class="dvla-badge-pass" style="font-size:0.75rem;">BOOKED ✓</span>';
+        if (isHeld)       statusBadge = '<span class="dvla-badge-pass" style="font-size:0.75rem;">' + esc(t('ui.prac.held')) + '</span>';
+        else if (!reqsMet) statusBadge = '<span style="color:#d4351c;font-size:0.75rem;">' + esc(t('ui.prac.requires', (cat.requires||[]).join(', '))) + '</span>';
+        else if (!booked)  statusBadge = '<span style="color:#b45309;font-size:0.75rem;">' + esc(t('ui.prac.bookOnSite', (d.fees && d.fees.practical) || 0)) + '</span>';
+        else if (d.bookingRequired) statusBadge = '<span class="dvla-badge-pass" style="font-size:0.75rem;">' + esc(t('ui.prac.booked')) + '</span>';
 
         return `<div class="dvla-category-card${available ? ' dvla-category-card--available' : ''}${isHeld ? ' dvla-category-card--held' : ''}"
                      data-category="${esc(cat.label)}"
@@ -290,7 +345,7 @@ function renderPracticalPage() {
             if (btn) {
                 btn.disabled = false;
                 btn.textContent = card.querySelector('[style*="font-size:2rem"]').textContent
-                    + ' Begin ' + card.dataset.category + ' Test';
+                    + ' ' + t('ui.prac.beginCat', card.dataset.category);
             }
         });
     });
@@ -300,37 +355,6 @@ function renderPracticalPage() {
 }
 
 // (examiner queue removed — AI examiner used instead)
-
-// ─── MOT Page ─────────────────────────────────────────────────────────────────
-
-function renderMOTPage() {
-    const d = State.playerData;
-    const motFee = (d.fees && d.fees.mot) || 0;
-    const motBtn = document.getElementById('btnBookMOT');
-    if (motBtn && !motBtn.disabled) motBtn.textContent = motFee > 0 ? 'Book MOT — £' + motFee : 'Book MOT';
-    const inspectorTerminal = document.getElementById('motInspectorTerminal');
-    inspectorTerminal.hidden = !d.isMOTInspector;
-    if (d.isMOTInspector) renderMOTQueue(d.pendingMOT || []);
-}
-
-function renderMOTQueue(queue) {
-    const container = document.getElementById('motQueue');
-    if (!queue || queue.length === 0) {
-        container.innerHTML = `<p class="govuk-body dvla-empty">No vehicles pending inspection.</p>`;
-        return;
-    }
-    container.innerHTML = queue.map(item => `
-        <div class="dvla-queue-item">
-            <div class="dvla-queue-item__info">
-                <div class="dvla-queue-item__plate">${esc(item.plate)}</div>
-                <div class="dvla-queue-item__sub">Owner: ${esc(item.name)}</div>
-            </div>
-            <button class="dvla-inspect-btn" onclick="openMOTModal('${esc(item.citizenid)}', '${esc(item.plate)}', '${esc(item.name)}')">
-                &#128295; Inspect
-            </button>
-        </div>
-    `).join('');
-}
 
 // ─── Theory Test Logic ────────────────────────────────────────────────────────
 
@@ -352,8 +376,7 @@ function renderQuestion() {
     const idx = State.currentQ;
     const total = State.testQuestions.length;
 
-    document.getElementById('qCurrent').textContent = idx + 1;
-    document.getElementById('qTotal').textContent   = total;
+    document.getElementById('qProgress').textContent = t('ui.test.questionOf', idx + 1, total);
     document.getElementById('testProgress').style.width = ((idx + 1) / total * 100) + '%';
     document.getElementById('questionText').textContent = q.question;
 
@@ -416,8 +439,8 @@ function submitTest() {
         if (result && result.success === false) {
             document.getElementById('theoryResultBox').innerHTML = `
                 <div class="dvla-result-fail">
-                    <div class="dvla-result__heading">&#10005; Test not recorded</div>
-                    <div class="dvla-result__sub">${esc(result.reason || 'Your result could not be recorded.')}</div>
+                    <div class="dvla-result__heading">&#10005; ${esc(t('ui.result.notRecorded'))}</div>
+                    <div class="dvla-result__sub">${esc(result.reason || t('ui.result.notRecordedSub'))}</div>
                 </div>`;
             showSection('section-theory-result');
             return;
@@ -437,47 +460,19 @@ function submitTest() {
         if (passed) {
             box.innerHTML = `
                 <div class="dvla-result-pass">
-                    <div class="dvla-result__heading">&#10003; Theory Test Passed</div>
+                    <div class="dvla-result__heading">&#10003; ${esc(t('ui.result.passed'))}</div>
                     <div class="dvla-result__score">${score} / ${TOTAL_QUESTIONS}</div>
-                    <div class="dvla-result__sub">Pass mark: ${PASS_MARK} — Congratulations!</div>
+                    <div class="dvla-result__sub">${esc(t('ui.result.passedSub', PASS_MARK))}</div>
                 </div>`;
         } else {
             box.innerHTML = `
                 <div class="dvla-result-fail">
-                    <div class="dvla-result__heading">&#10005; Theory Test Failed</div>
+                    <div class="dvla-result__heading">&#10005; ${esc(t('ui.result.failed'))}</div>
                     <div class="dvla-result__score">${score} / ${TOTAL_QUESTIONS}</div>
-                    <div class="dvla-result__sub">Pass mark: ${PASS_MARK} — Please try again.</div>
+                    <div class="dvla-result__sub">${esc(t('ui.result.failedSub', PASS_MARK))}</div>
                 </div>`;
         }
         showSection('section-theory-result');
-    });
-}
-
-// ─── MOT Modal ────────────────────────────────────────────────────────────────
-
-window.openMOTModal = function(citizenid, plate, ownerName) {
-    document.getElementById('motInspectCitizenId').value   = citizenid;
-    document.getElementById('motInspectPlate').textContent = plate;
-    document.getElementById('motInspectOwner').textContent = ownerName;
-    document.getElementById('motNotes').value              = '';
-    document.getElementById('modalMOT').hidden             = false;
-};
-
-function closeMOTModal() {
-    document.getElementById('modalMOT').hidden = true;
-}
-
-function completeMOT(passed) {
-    const citizenid = document.getElementById('motInspectCitizenId').value;
-    const plate     = document.getElementById('motInspectPlate').textContent;
-    const notes     = document.getElementById('motNotes').value.trim();
-    closeMOTModal();
-
-    nuiFetch('completeMOT', { citizenid, plate, passed, notes }).then(result => {
-        if (result && result.success) {
-            State.playerData.pendingMOT = result.pendingMOT || [];
-            renderMOTQueue(State.playerData.pendingMOT);
-        }
     });
 }
 
@@ -486,6 +481,12 @@ function completeMOT(passed) {
 // ─── Event Listeners ─────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    // Language: fetch the dictionary from the client script and translate the static text
+    loadLocale(() => {
+        applyI18nHtml();
+        if (State.playerData) renderAll();
+    });
 
     // Close button
     document.getElementById('btnClose').addEventListener('click', () => {
@@ -541,7 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnSubmitTest').addEventListener('click', () => {
         const unanswered = State.testAnswers.filter(a => a === null).length;
         if (unanswered > 0) {
-            if (!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) return;
+            if (!confirm(t('ui.test.unanswered', unanswered))) return;
         }
         submitTest();
     });
@@ -552,7 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const category  = container && container._getSelected ? container._getSelected() : 'B';
         if (!category) {
             const el = document.getElementById('practicalError');
-            document.getElementById('practicalErrorMsg').textContent = 'Please select a licence category first.';
+            document.getElementById('practicalErrorMsg').textContent = t('ui.prac.pickFirst');
             el.hidden = false;
             return;
         }
@@ -562,70 +563,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Get current vehicle plate
-    document.getElementById('btnGetPlate').addEventListener('click', () => {
-        nuiFetch('getVehiclePlate').then(result => {
-            if (result && result.plate) {
-                document.getElementById('motBookError').hidden = true;
-                document.getElementById('motPlate').value = result.plate;
-            } else {
-                document.getElementById('motBookErrorMsg').textContent = 'No vehicle detected. Please enter your plate manually.';
-                document.getElementById('motBookError').hidden = false;
-            }
-        });
-    });
-
-    // Book MOT
-    document.getElementById('btnBookMOT').addEventListener('click', () => {
-        const plate = document.getElementById('motPlate').value.trim().toUpperCase();
-        if (!plate) {
-            document.getElementById('motBookErrorMsg').textContent = 'Please enter a vehicle plate.';
-            document.getElementById('motBookError').hidden = false;
-            return;
-        }
-        document.getElementById('motBookError').hidden = true;
-        document.getElementById('btnBookMOT').disabled = true;
-        nuiFetch('bookMOT', { plate }).then(result => {
-            if (result && result.success) {
-                document.getElementById('motBookedPlate').textContent   = plate;
-                document.getElementById('motBookedNotice').hidden       = false;
-                document.getElementById('motBookForm').hidden           = true;
-                State.playerData.pendingMOT = result.pendingMOT || State.playerData.pendingMOT;
-                if (State.playerData.isMOTInspector) renderMOTQueue(State.playerData.pendingMOT);
-            } else {
-                document.getElementById('motBookErrorMsg').textContent = result.reason || 'Unable to book MOT.';
-                document.getElementById('motBookError').hidden = false;
-                document.getElementById('btnBookMOT').disabled = false;
-            }
-        });
-    });
-
-    // MOT inspector refresh
-    document.getElementById('btnRefreshMOT').addEventListener('click', () => {
-        nuiFetch('getPendingMOT').then(queue => {
-            State.playerData.pendingMOT = queue || [];
-            renderMOTQueue(State.playerData.pendingMOT);
-        });
-    });
-
-    // MOT modal
-    document.getElementById('btnMOTPass').addEventListener('click',   () => completeMOT(true));
-    document.getElementById('btnMOTFail').addEventListener('click',   () => completeMOT(false));
-    document.getElementById('btnMOTCancel').addEventListener('click', () => closeMOTModal());
-
-    // Plate input — auto uppercase
-    document.getElementById('motPlate').addEventListener('input', function() {
-        this.value = this.value.toUpperCase();
-        document.getElementById('motBookError').hidden = true;
-    });
-
     // Replace Licence
     document.getElementById('btnReplaceLicence').addEventListener('click', () => {
         const btn    = document.getElementById('btnReplaceLicence');
         const errBox = document.getElementById('replaceError');
         errBox.hidden = true;
         btn.disabled = true;
-        btn.textContent = 'Processing…';
+        btn.textContent = t('ui.replace.processing');
 
         nuiFetch('replaceLicence').then(result => {
             if (result && result.success) {
@@ -633,10 +577,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('replaceCanApply').querySelector('table').hidden = true;
                 btn.hidden = true;
             } else {
-                document.getElementById('replaceErrorMsg').textContent = result.reason || 'Unable to process replacement. Please try again.';
+                document.getElementById('replaceErrorMsg').textContent = (result && result.reason) || t('ui.replace.failed');
                 errBox.hidden = false;
                 btn.disabled = false;
-                btn.textContent = '🔄 Apply for Replacement — £' + ((State.playerData.fees && State.playerData.fees.replace) || 20);
+                btn.textContent = t('ui.replace.applyBtn', (State.playerData.fees && State.playerData.fees.replace) || 20);
             }
         });
     });
@@ -674,7 +618,9 @@ function renderReplacePage() {
     document.getElementById('replaceCategories').textContent = cats;
     document.getElementById('replaceIssueDate').textContent = lic.issue_date || '—';
 
-    document.querySelectorAll('.js-replace-fee').forEach(el => { el.textContent = (d.fees && d.fees.replace) || 20; });
+    const replaceFee = (d.fees && d.fees.replace) || 20;
+    document.getElementById('replaceFeeHeading').textContent = t('ui.replace.feeHeading', replaceFee);
+    if (btn) btn.textContent = t('ui.replace.applyBtn', replaceFee);
     canApply.hidden = false;
 }
 
@@ -696,7 +642,7 @@ function initLicenceCard() {
     var root = document.getElementById('licCardRoot');
     if (!root) return;
     var current = null;
-    var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    function months() { return t('meta.months').split(','); }
 
     function $(id) { return document.getElementById(id); }
     function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -706,9 +652,9 @@ function initLicenceCard() {
         s = String(s || '').trim();
         if (!s) return '-';
         var a = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/.exec(s);
-        if (a) return pad(+a[3]) + ' ' + MONTHS[+a[2] - 1] + ' ' + a[1];
+        if (a) return pad(+a[3]) + ' ' + months()[+a[2] - 1] + ' ' + a[1];
         var b = /^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})/.exec(s);
-        if (b) return pad(+b[1]) + ' ' + MONTHS[+b[2] - 1] + ' ' + b[3];
+        if (b) return pad(+b[1]) + ' ' + months()[+b[2] - 1] + ' ' + b[3];
         return s;
     }
 
@@ -716,22 +662,23 @@ function initLicenceCard() {
         return '<svg viewBox="0 0 100 100"><circle cx="50" cy="34" r="20" fill="#000"/><path d="M10 100c0-26 18-38 40-38s40 12 40 38z" fill="#000"/></svg>';
     }
 
-    function show(msg) {
+    function show(msg, again) {
+        if (!again) ensureLocale(function () { if (current) show(msg, true); });
         var c = msg.card;
         current = c;
         var bad = c.status === 'suspended' || c.status === 'expired';
         $('lcCard').className = 'lc-card' + (bad ? ' bad' : '');
-        $('lcStamp').textContent = c.status === 'expired' ? 'EXPIRED' : 'SUSPENDED';
+        $('lcStamp').textContent = c.status === 'expired' ? t('card.expired') : t('card.suspended');
         var st = $('lcStatus');
         st.className = 'lc-status ' + (c.status === 'provisional' ? 'provisional' : 'valid');
-        st.textContent = c.status === 'provisional' ? 'PROVISIONAL' : 'VALID';
+        st.textContent = c.status === 'provisional' ? t('card.provisional') : t('card.valid');
 
         $('lcLast').textContent = (c.last || '').toUpperCase();
         $('lcFirst').textContent = (c.first || '').toUpperCase();
         $('lcDob').textContent = dateText(c.dob);
         $('lcSexNat').textContent = (c.sex || '-') + ' / ' + String(c.nationality || '').toUpperCase();
         $('lcIssued').textContent = dateText(c.issued);
-        $('lcExpires').textContent = c.expires ? dateText(c.expires) : 'No expiry';
+        $('lcExpires').textContent = c.expires ? dateText(c.expires) : t('card.noExpiry');
         $('lcAuth').textContent = c.authority || '';
         $('lcNumber').textContent = c.number || '';
 
@@ -741,7 +688,7 @@ function initLicenceCard() {
         if (!cats.length) {
             var none = document.createElement('span');
             none.className = 'lc-chip none';
-            none.textContent = c.status === 'provisional' ? 'Provisional - no categories yet' : 'None';
+            none.textContent = c.status === 'provisional' ? t('card.provisionalNoCats') : t('card.none');
             chips.appendChild(none);
         } else {
             cats.forEach(function (label) {
@@ -756,7 +703,7 @@ function initLicenceCard() {
         if (c.photo) { ph.style.backgroundImage = 'url("' + String(c.photo).replace(/"/g, '') + '")'; ph.innerHTML = ''; }
         else { ph.style.backgroundImage = ''; ph.innerHTML = silhouette(); }
 
-        $('lcFrom').textContent = msg.from ? msg.from + ' shows you their driving licence' : '';
+        $('lcFrom').textContent = msg.from ? t('card.shownBy', msg.from) : '';
         $('lcShow').style.display = msg.own && !bad ? '' : 'none';
         root.className = 'on';
         root.style.display = 'flex';

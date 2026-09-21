@@ -47,22 +47,6 @@ CREATE TABLE IF NOT EXISTS `dvla_practical_tests` (
 
 -- ──────────────────────────────────────────────────────────────────────────────
 
-CREATE TABLE IF NOT EXISTS `dvla_mot_tests` (
-    `id`          INT(11)      NOT NULL AUTO_INCREMENT,
-    `citizenid`   VARCHAR(50)  NOT NULL,
-    `plate`       VARCHAR(20)  NOT NULL,
-    `passed`      TINYINT(1)   NOT NULL,
-    `inspector`   VARCHAR(100) DEFAULT NULL,
-    `notes`       TEXT         DEFAULT NULL,
-    `expiry_date` VARCHAR(30)  DEFAULT NULL,
-    `date`        VARCHAR(30)  NOT NULL,
-    PRIMARY KEY (`id`),
-    KEY `citizenid` (`citizenid`),
-    KEY `plate` (`plate`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ──────────────────────────────────────────────────────────────────────────────
-
 CREATE TABLE IF NOT EXISTS `dvla_penalty_points` (
     `id`         INT(11)      NOT NULL AUTO_INCREMENT,
     `citizenid`  VARCHAR(50)  NOT NULL,

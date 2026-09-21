@@ -868,30 +868,6 @@ html, body {
 .dvla-inspect-btn:hover { background: var(--govuk-green-dark); }
 
 /* ──────────────────────────────────────────────────────────────────────────────
-   MOT PLATE ROW
-────────────────────────────────────────────────────────────────────────────── */
-
-.dvla-plate-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.dvla-plate-input {
-    font-family: monospace;
-    font-size: 18px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    font-weight: 700;
-}
-
-.dvla-plate-fetch {
-    font-size: 13px;
-    padding: 7px 12px;
-}
-
-/* ──────────────────────────────────────────────────────────────────────────────
    MODAL
 ────────────────────────────────────────────────────────────────────────────── */
 

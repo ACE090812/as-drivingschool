@@ -1,11 +1,11 @@
 Config = {}
 
+-- Language: any file in locales/ (locales/en.lua = English). Copy en.lua to add a language.
+Config.locale = 'en'
+
 -- ─────────────────────────────────────────────────────────────
 --  JOB PERMISSIONS
 -- ─────────────────────────────────────────────────────────────
-
--- Jobs that can perform MOT Inspections
-Config.MOTInspectorJobs = { 'mechanic', 'dvla' }
 
 -- Jobs that can issue Penalty Points
 Config.PenaltyJobs = { 'police', 'bcso', 'sasp', 'dvla' }
@@ -633,13 +633,6 @@ Config.Categories = {
 
 }
 -- ─────────────────────────────────────────────────────────────
---  MOT TEST
--- ─────────────────────────────────────────────────────────────
-Config.MOTTest = {
-    validityMonths = 12,
-}
-
--- ─────────────────────────────────────────────────────────────
 --  PRACTICAL TEST (record label only — used in DB)
 -- ─────────────────────────────────────────────────────────────
 Config.PracticalTest = {
@@ -693,12 +686,10 @@ Config.Replace = {
 -- ─────────────────────────────────────────────────────────────
 --  FEES AND BOOKING (lsgov.co.uk)
 --  Whole pounds. Test and replacement fees taken on lsgov.co.uk come from the bank account.
---  The MOT fee and the in-world replacement button take cash first, then bank.
 -- ─────────────────────────────────────────────────────────────
 Config.Fees = {
     theory    = 25,
     practical = 75,     -- per category
-    mot       = 40,
     replace   = 20,
 }
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Licenses Online Services</title>
+    <title data-i18n="ui.title">Licenses Online Services</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -22,21 +22,21 @@
             <span class="govuk-header__logotype-text">UKC.UK</span>
         </div>
         <div class="govuk-header__divider"></div>
-        <div class="govuk-header__service-name">Driver &amp; Vehicle Licensing Agency</div>
-        <button class="govuk-header__close" id="btnClose" title="Close">&#x2715;</button>
+        <div class="govuk-header__service-name" data-i18n="ui.agency">Driver &amp; Vehicle Licensing Agency</div>
+        <button class="govuk-header__close" id="btnClose" title="Close" data-i18n-title="ui.close">&#x2715;</button>
     </div>
 </header>
 
 <!-- Sub-header -->
 <div class="dvla-subheader">
-    <span class="dvla-badge">Licenses</span>
-    <span class="dvla-subheader__text">UK Central — Digital Services Portal</span>
+    <span class="dvla-badge" data-i18n="ui.badge">Licenses</span>
+    <span class="dvla-subheader__text" data-i18n="ui.subheader">UK Central — Digital Services Portal</span>
     <nav class="dvla-nav" id="dvlaNav">
-        <a href="#" class="dvla-nav__link" data-section="dashboard">Home</a>
-        <a href="#" class="dvla-nav__link" data-section="section-licence">My Licence</a>
-        <a href="#" class="dvla-nav__link" data-section="section-penalty">Penalty Points</a>
-        <a href="#" class="dvla-nav__link" data-section="section-history">Test History</a>
-        <a href="#" class="dvla-nav__link" data-section="section-replace">Replace Licence</a>
+        <a href="#" class="dvla-nav__link" data-section="dashboard" data-i18n="ui.nav.home">Home</a>
+        <a href="#" class="dvla-nav__link" data-section="section-licence" data-i18n="ui.nav.licence">My Licence</a>
+        <a href="#" class="dvla-nav__link" data-section="section-penalty" data-i18n="ui.nav.penalty">Penalty Points</a>
+        <a href="#" class="dvla-nav__link" data-section="section-history" data-i18n="ui.nav.history">Test History</a>
+        <a href="#" class="dvla-nav__link" data-section="section-replace" data-i18n="ui.nav.replace">Replace Licence</a>
     </nav>
 </div>
 
@@ -50,30 +50,30 @@
         <div class="govuk-width-container">
             <div class="dvla-welcome-toast" id="welcomeToast">
                 <span class="dvla-welcome-icon">&#x2139;</span>
-                <span id="welcomeMsg">Welcome to Licenses UK Central Digital Services Portal.</span>
+                <span id="welcomeMsg" data-i18n="ui.dash.welcomeToast">Welcome to Licenses UK Central Digital Services Portal.</span>
             </div>
 
-            <h1 class="govuk-heading-xl">Licenses Online Services</h1>
-            <p class="govuk-body-l">Welcome, <strong id="playerName">—</strong></p>
+            <h1 class="govuk-heading-xl" data-i18n="ui.dash.heading">Licenses Online Services</h1>
+            <p class="govuk-body-l" id="welcomeLine">Welcome, <strong id="playerName">—</strong></p>
 
             <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
             <!-- Status Cards -->
             <div class="dvla-status-cards">
                 <div class="dvla-status-card">
-                    <div class="dvla-status-card__label">&#128196; LICENCE</div>
+                    <div class="dvla-status-card__label">&#128196; <span data-i18n="ui.status.licence">LICENCE</span></div>
                     <div class="dvla-status-card__value" id="statusLicence">—</div>
                 </div>
                 <div class="dvla-status-card">
-                    <div class="dvla-status-card__label">&#9651; POINTS</div>
+                    <div class="dvla-status-card__label">&#9651; <span data-i18n="ui.status.points">POINTS</span></div>
                     <div class="dvla-status-card__value" id="statusPoints">0 / 12</div>
                 </div>
                 <div class="dvla-status-card">
-                    <div class="dvla-status-card__label">&#128209; THEORY</div>
+                    <div class="dvla-status-card__label">&#128209; <span data-i18n="ui.status.theory">THEORY</span></div>
                     <div class="dvla-status-card__value" id="statusTheory">—</div>
                 </div>
                 <div class="dvla-status-card">
-                    <div class="dvla-status-card__label">&#128664; PRACTICAL</div>
+                    <div class="dvla-status-card__label">&#128664; <span data-i18n="ui.status.practical">PRACTICAL</span></div>
                     <div class="dvla-status-card__value" id="statusPractical">—</div>
                 </div>
             </div>
@@ -83,57 +83,49 @@
                 <div class="dvla-service-card" data-section="section-theory">
                     <div class="dvla-service-card__icon">&#128209;</div>
                     <div class="dvla-service-card__content">
-                        <h3 class="dvla-service-card__title">Theory Test</h3>
-                        <p class="dvla-service-card__desc">Take your UK Highway Code multiple-choice test.</p>
-                        <a href="#" class="govuk-link">Start test &rarr;</a>
+                        <h3 class="dvla-service-card__title" data-i18n="ui.svc.theory.title">Theory Test</h3>
+                        <p class="dvla-service-card__desc" data-i18n="ui.svc.theory.desc">Take your UK Highway Code multiple-choice test.</p>
+                        <a href="#" class="govuk-link" data-i18n="ui.svc.theory.link">Start test &rarr;</a>
                     </div>
                 </div>
                 <div class="dvla-service-card" data-section="section-practical">
                     <div class="dvla-service-card__icon">&#128664;</div>
                     <div class="dvla-service-card__content">
-                        <h3 class="dvla-service-card__title">Practical Test</h3>
-                        <p class="dvla-service-card__desc">Take your on-road driving test with an AI examiner in the passenger seat.</p>
-                        <a href="#" class="govuk-link">Start test &rarr;</a>
+                        <h3 class="dvla-service-card__title" data-i18n="ui.svc.practical.title">Practical Test</h3>
+                        <p class="dvla-service-card__desc" data-i18n="ui.svc.practical.desc">Take your on-road driving test with an AI examiner in the passenger seat.</p>
+                        <a href="#" class="govuk-link" data-i18n="ui.svc.practical.link">Start test &rarr;</a>
                     </div>
                 </div>
                 <div class="dvla-service-card" data-section="section-licence">
                     <div class="dvla-service-card__icon">&#128196;</div>
                     <div class="dvla-service-card__content">
-                        <h3 class="dvla-service-card__title">My Licence</h3>
-                        <p class="dvla-service-card__desc">View your driving licence details and current status.</p>
-                        <a href="#" class="govuk-link">View licence &rarr;</a>
+                        <h3 class="dvla-service-card__title" data-i18n="ui.svc.licence.title">My Licence</h3>
+                        <p class="dvla-service-card__desc" data-i18n="ui.svc.licence.desc">View your driving licence details and current status.</p>
+                        <a href="#" class="govuk-link" data-i18n="ui.svc.licence.link">View licence &rarr;</a>
                     </div>
                 </div>
                 <div class="dvla-service-card" data-section="section-penalty">
                     <div class="dvla-service-card__icon">&#9888;</div>
                     <div class="dvla-service-card__content">
-                        <h3 class="dvla-service-card__title">Penalty Points</h3>
-                        <p class="dvla-service-card__desc">Check your endorsement record and points tally.</p>
-                        <a href="#" class="govuk-link">View points &rarr;</a>
-                    </div>
-                </div>
-                <div class="dvla-service-card" data-section="section-mot">
-                    <div class="dvla-service-card__icon">&#128295;</div>
-                    <div class="dvla-service-card__content">
-                        <h3 class="dvla-service-card__title">MOT Test</h3>
-                        <p class="dvla-service-card__desc">Book your vehicle's annual roadworthiness inspection.</p>
-                        <a href="#" class="govuk-link">Book MOT &rarr;</a>
+                        <h3 class="dvla-service-card__title" data-i18n="ui.svc.penalty.title">Penalty Points</h3>
+                        <p class="dvla-service-card__desc" data-i18n="ui.svc.penalty.desc">Check your endorsement record and points tally.</p>
+                        <a href="#" class="govuk-link" data-i18n="ui.svc.penalty.link">View points &rarr;</a>
                     </div>
                 </div>
                 <div class="dvla-service-card" data-section="section-history">
                     <div class="dvla-service-card__icon">&#128196;</div>
                     <div class="dvla-service-card__content">
-                        <h3 class="dvla-service-card__title">Test History</h3>
-                        <p class="dvla-service-card__desc">Review your previous theory and practical results.</p>
-                        <a href="#" class="govuk-link">View history &rarr;</a>
+                        <h3 class="dvla-service-card__title" data-i18n="ui.svc.history.title">Test History</h3>
+                        <p class="dvla-service-card__desc" data-i18n="ui.svc.history.desc">Review your previous theory and practical results.</p>
+                        <a href="#" class="govuk-link" data-i18n="ui.svc.history.link">View history &rarr;</a>
                     </div>
                 </div>
                 <div class="dvla-service-card" data-section="section-replace">
                     <div class="dvla-service-card__icon">&#128260;</div>
                     <div class="dvla-service-card__content">
-                        <h3 class="dvla-service-card__title">Replace Licence</h3>
-                        <p class="dvla-service-card__desc">Lost or stolen licence? Order a replacement driving licence.</p>
-                        <a href="#" class="govuk-link">Apply now &rarr;</a>
+                        <h3 class="dvla-service-card__title" data-i18n="ui.svc.replace.title">Replace Licence</h3>
+                        <p class="dvla-service-card__desc" data-i18n="ui.svc.replace.desc">Lost or stolen licence? Order a replacement driving licence.</p>
+                        <a href="#" class="govuk-link" data-i18n="ui.svc.replace.link">Apply now &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -143,15 +135,15 @@
     <!-- ──────────────────────────────── THEORY TEST INFO ─── -->
     <section id="section-theory" hidden>
         <div class="govuk-width-container">
-            <a href="#" class="govuk-back-link" data-section="dashboard">Back</a>
-            <h1 class="govuk-heading-xl">Theory Test</h1>
+            <a href="#" class="govuk-back-link" data-section="dashboard" data-i18n="ui.back">Back</a>
+            <h1 class="govuk-heading-xl" data-i18n="ui.theory.heading">Theory Test</h1>
 
             <div id="theoryAlreadyPassed" hidden>
                 <div class="dvla-alert dvla-alert--success">
                     <span class="dvla-alert__icon">&#10003;</span>
                     <div>
-                        <strong>Already Passed</strong>
-                        <p>You have already passed your theory test.</p>
+                        <strong data-i18n="ui.theory.passedTitle">Already Passed</strong>
+                        <p data-i18n="ui.theory.passedBody">You have already passed your theory test.</p>
                     </div>
                 </div>
             </div>
@@ -160,20 +152,20 @@
                 <div class="dvla-alert dvla-alert--info">
                     <span class="dvla-alert__icon">&#8505;</span>
                     <div>
-                        <strong>Booking required</strong>
-                        <p>Book and pay for your theory test (<span id="theoryFee">25</span>) on <strong>lsgov.co.uk</strong> using your phone's browser, then come back here to take it. You need a valid passport to book.</p>
+                        <strong data-i18n="ui.theory.bookTitle">Booking required</strong>
+                        <p id="theoryBookText">Book and pay for your theory test (<span id="theoryFee">£25</span>) on <strong>lsgov.co.uk</strong> using your phone's browser, then come back here to take it. You need a valid passport to book.</p>
                     </div>
                 </div>
             </div>
 
             <div id="theoryCanTake">
-                <div class="govuk-inset-text">
+                <div class="govuk-inset-text" data-i18n-html="ui.theory.info">
                     This test contains <strong>15</strong> questions from the UK Highway Code.
                     You must score at least <strong>12</strong> correct answers within <strong>8 minutes</strong>.
                 </div>
-                <p class="govuk-body">Read each question carefully and select one answer. Your answers are submitted automatically when the timer expires.</p>
+                <p class="govuk-body" data-i18n="ui.theory.instructions">Read each question carefully and select one answer. Your answers are submitted automatically when the timer expires.</p>
                 <button class="govuk-button govuk-button--start" id="btnStartTheory">
-                    &#9654; Start Test Now
+                    &#9654; <span data-i18n="ui.theory.start">Start Test Now</span>
                 </button>
             </div>
         </div>
@@ -183,8 +175,8 @@
     <section id="section-theory-test" hidden>
         <div class="govuk-width-container">
             <div class="dvla-test-header">
-                <div class="dvla-test-progress">
-                    Question <span id="qCurrent">1</span> of <span id="qTotal">15</span>
+                <div class="dvla-test-progress" id="qProgress">
+                    Question 1 of 15
                 </div>
                 <div class="dvla-test-timer" id="testTimer">8:00</div>
             </div>
@@ -199,9 +191,9 @@
             </div>
 
             <div class="dvla-test-nav">
-                <button class="govuk-button govuk-button--secondary" id="btnPrevQ" disabled>&#8592; Previous</button>
-                <button class="govuk-button" id="btnNextQ">Next &rarr;</button>
-                <button class="govuk-button dvla-button--submit" id="btnSubmitTest" hidden>Submit Test</button>
+                <button class="govuk-button govuk-button--secondary" id="btnPrevQ" disabled data-i18n="ui.test.prev">&#8592; Previous</button>
+                <button class="govuk-button" id="btnNextQ" data-i18n="ui.test.next">Next &rarr;</button>
+                <button class="govuk-button dvla-button--submit" id="btnSubmitTest" hidden data-i18n="ui.test.submit">Submit Test</button>
             </div>
         </div>
     </section>
@@ -209,25 +201,25 @@
     <!-- ──────────────────────────────── THEORY RESULT ─── -->
     <section id="section-theory-result" hidden>
         <div class="govuk-width-container">
-            <h1 class="govuk-heading-xl">Theory Test Result</h1>
+            <h1 class="govuk-heading-xl" data-i18n="ui.result.heading">Theory Test Result</h1>
             <div id="theoryResultBox"></div>
-            <button class="govuk-button govuk-button--secondary" data-section="dashboard" style="margin-top:16px">Return to Dashboard</button>
+            <button class="govuk-button govuk-button--secondary" data-section="dashboard" style="margin-top:16px" data-i18n="ui.result.return">Return to Dashboard</button>
         </div>
     </section>
 
     <!-- ──────────────────────────────── PRACTICAL TEST ─── -->
     <section id="section-practical" hidden>
         <div class="govuk-width-container">
-            <a href="#" class="govuk-back-link" data-section="dashboard">Back</a>
-            <h1 class="govuk-heading-xl">Practical Driving Test</h1>
+            <a href="#" class="govuk-back-link" data-section="dashboard" data-i18n="ui.back">Back</a>
+            <h1 class="govuk-heading-xl" data-i18n="ui.prac.heading">Practical Driving Test</h1>
 
             <!-- Already passed all available categories (shown alongside category picker) -->
             <div id="practicalAlreadyPassed" hidden>
                 <div class="dvla-alert dvla-alert--success">
                     <span class="dvla-alert__icon">&#10003;</span>
                     <div>
-                        <strong>Full Licence Holder</strong>
-                        <p>Categories held: <strong id="heldCategoriesDisplay">—</strong></p>
+                        <strong data-i18n="ui.prac.holderTitle">Full Licence Holder</strong>
+                        <p id="heldCategoriesLine">Categories held: <strong id="heldCategoriesDisplay">—</strong></p>
                     </div>
                 </div>
             </div>
@@ -237,8 +229,8 @@
                 <div class="dvla-alert dvla-alert--warning">
                     <span class="dvla-alert__icon">&#9888;</span>
                     <div>
-                        <strong>Theory Test Required</strong>
-                        <p>You must pass your Theory Test before you can book a Practical Test.</p>
+                        <strong data-i18n="ui.prac.needTheoryTitle">Theory Test Required</strong>
+                        <p data-i18n="ui.prac.needTheoryBody">You must pass your Theory Test before you can book a Practical Test.</p>
                     </div>
                 </div>
             </div>
@@ -249,21 +241,21 @@
                 <div class="dvla-alert dvla-alert--info" style="margin-bottom:1.5rem;">
                     <span class="dvla-alert__icon">&#129302;</span>
                     <div>
-                        <strong>AI Examiner Test</strong>
-                        <p>Select a licence category below. An AI examiner will oversee your test. Follow the GPS route, observe speed limits and avoid collisions.</p>
+                        <strong data-i18n="ui.prac.aiTitle">AI Examiner Test</strong>
+                        <p data-i18n="ui.prac.aiBody">Select a licence category below. An AI examiner will oversee your test. Follow the GPS route, observe speed limits and avoid collisions.</p>
                     </div>
                 </div>
 
                 <div class="govuk-inset-text" style="margin-bottom:1.5rem;">
                     <ul class="govuk-list govuk-list--bullet" style="margin:0;">
-                        <li>Exceeding the speed limit earns minor faults</li>
-                        <li>Serious collisions are an instant major fault and termination</li>
-                        <li>Do <strong>not</strong> leave the test vehicle</li>
-                        <li>More than 15 minor faults or any major fault = fail</li>
+                        <li data-i18n="ui.prac.rule1">Exceeding the speed limit earns minor faults</li>
+                        <li data-i18n="ui.prac.rule2">Serious collisions are an instant major fault and termination</li>
+                        <li data-i18n-html="ui.prac.rule3">Do <strong>not</strong> leave the test vehicle</li>
+                        <li data-i18n="ui.prac.rule4">More than 15 minor faults or any major fault = fail</li>
                     </ul>
                 </div>
 
-                <h2 class="govuk-heading-m">Select Licence Category</h2>
+                <h2 class="govuk-heading-m" data-i18n="ui.prac.selectCategory">Select Licence Category</h2>
                 <div id="categoryCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem;"></div>
 
                 <div id="practicalError" class="dvla-alert dvla-alert--error" hidden>
@@ -271,7 +263,7 @@
                     <div id="practicalErrorMsg"></div>
                 </div>
 
-                <button class="govuk-button" id="btnBookPractical" disabled style="margin-top:0.5rem;">
+                <button class="govuk-button" id="btnBookPractical" disabled style="margin-top:0.5rem;" data-i18n="ui.prac.begin">
                     Begin Test
                 </button>
             </div>
@@ -279,106 +271,19 @@
     </section>
 
 
-    <!-- ──────────────────────────────── MOT TEST ─── -->
-    <section id="section-mot" hidden>
-        <div class="govuk-width-container">
-            <a href="#" class="govuk-back-link" data-section="dashboard">Back</a>
-            <h1 class="govuk-heading-xl">MOT Test</h1>
-
-            <p class="govuk-body">All vehicles over 3 years old must hold a valid MOT certificate under the Road Traffic Act 1988.</p>
-
-            <div class="dvla-alert dvla-alert--warning">
-                <span class="dvla-alert__icon">&#9888;</span>
-                <p>Driving without a valid MOT may result in a fixed penalty notice and 3 penalty points.</p>
-            </div>
-
-            <div class="govuk-inset-text">
-                Drive your vehicle to an approved MOT testing centre. A qualified mechanic will inspect your vehicle and issue a pass or fail certificate. Cost: <strong>£55</strong>.
-            </div>
-
-            <!-- Booking status -->
-            <div id="motBookedNotice" hidden>
-                <div class="dvla-alert dvla-alert--info">
-                    <span class="dvla-alert__icon">&#128336;</span>
-                    <div>
-                        <strong>MOT Booked — Awaiting Inspection</strong>
-                        <p>Your MOT for <strong id="motBookedPlate">—</strong> has been booked. A mechanic has been notified and will inspect your vehicle. Please remain with your vehicle.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="motBookForm">
-                <div class="govuk-form-group">
-                    <label class="govuk-label" for="motPlate">Vehicle Registration Plate</label>
-                    <div class="dvla-plate-row">
-                        <input class="govuk-input govuk-input--width-10 dvla-plate-input" type="text" id="motPlate" placeholder="e.g. AB12 CDE" maxlength="8">
-                        <button class="govuk-button govuk-button--secondary dvla-plate-fetch" id="btnGetPlate">&#128663; Use Current Vehicle</button>
-                    </div>
-                </div>
-                <div id="motBookError" class="dvla-alert dvla-alert--error" hidden>
-                    <span class="dvla-alert__icon">&#10005;</span>
-                    <div id="motBookErrorMsg"></div>
-                </div>
-                <button class="govuk-button" id="btnBookMOT">Book MOT</button>
-            </div>
-
-            <!-- Inspector Terminal -->
-            <div id="motInspectorTerminal" hidden>
-                <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-                <div class="dvla-inspector-banner">
-                    <span>&#128295;</span>
-                    <div>
-                        <strong>MOT Inspector Terminal</strong>
-                        <p>You are logged in as an authorised MOT tester. Review pending inspections below. You can also book your own vehicle for MOT using the form above.</p>
-                    </div>
-                </div>
-
-                <div class="dvla-queue-header">
-                    <h2 class="govuk-heading-m">Pending MOT Queue</h2>
-                    <button class="dvla-refresh-btn" id="btnRefreshMOT">&#8635; Refresh</button>
-                </div>
-
-                <div id="motQueue">
-                    <p class="govuk-body dvla-empty">No vehicles pending inspection.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- MOT Inspect Modal -->
-    <div id="modalMOT" class="dvla-modal" hidden>
-        <div class="dvla-modal__box">
-            <h2 class="govuk-heading-m">MOT Inspection</h2>
-            <p class="govuk-body">Vehicle: <strong id="motInspectPlate">—</strong></p>
-            <p class="govuk-body">Owner: <strong id="motInspectOwner">—</strong></p>
-            <input type="hidden" id="motInspectCitizenId">
-
-            <div class="govuk-form-group">
-                <label class="govuk-label" for="motNotes">Inspection Notes / Failure Reason</label>
-                <textarea class="govuk-textarea" id="motNotes" rows="3" placeholder="Optional notes..."></textarea>
-            </div>
-
-            <div class="dvla-modal__actions">
-                <button class="govuk-button dvla-button--pass" id="btnMOTPass">&#10003; Pass</button>
-                <button class="govuk-button dvla-button--fail" id="btnMOTFail">&#10005; Fail</button>
-                <button class="govuk-button govuk-button--secondary" id="btnMOTCancel">Cancel</button>
-            </div>
-        </div>
-    </div>
-
     <!-- ──────────────────────────────── MY LICENCE ─── -->
     <section id="section-licence" hidden>
         <div class="govuk-width-container">
-            <a href="#" class="govuk-back-link" data-section="dashboard">Back</a>
-            <h1 class="govuk-heading-xl">My Driving Licence</h1>
+            <a href="#" class="govuk-back-link" data-section="dashboard" data-i18n="ui.back">Back</a>
+            <h1 class="govuk-heading-xl" data-i18n="ui.lic.heading">My Driving Licence</h1>
 
             <div class="dvla-licence-card">
                 <div class="dvla-licence-card__header">
                     <div>
                         <span class="dvla-licence-card__country">UK<br>GB</span>
                         <div>
-                            <div class="dvla-licence-card__agency">Driver &amp; Vehicle Licensing Agency</div>
-                            <div class="dvla-licence-card__country-full">UNITED KINGDOM OF GREAT BRITAIN</div>
+                            <div class="dvla-licence-card__agency" data-i18n="ui.agency">Driver &amp; Vehicle Licensing Agency</div>
+                            <div class="dvla-licence-card__country-full" data-i18n="ui.lic.country">UNITED KINGDOM OF GREAT BRITAIN</div>
                         </div>
                     </div>
                     <div class="dvla-licence-card__brand">DVLA</div>
@@ -386,31 +291,31 @@
                 <hr class="dvla-licence-card__divider">
                 <table class="dvla-licence-table">
                     <tr>
-                        <td>Full name</td>
+                        <td data-i18n="ui.lic.name">Full name</td>
                         <td id="licName">—</td>
                     </tr>
                     <tr>
-                        <td>Licence type</td>
+                        <td data-i18n="ui.lic.type">Licence type</td>
                         <td id="licType">—</td>
                     </tr>
                     <tr>
-                        <td>Issue date</td>
+                        <td data-i18n="ui.lic.issueDate">Issue date</td>
                         <td id="licIssueDate">—</td>
                     </tr>
                     <tr>
-                        <td>Theory test</td>
+                        <td data-i18n="ui.lic.theory">Theory test</td>
                         <td id="licTheory">—</td>
                     </tr>
                     <tr>
-                        <td>Practical test</td>
+                        <td data-i18n="ui.lic.practical">Practical test</td>
                         <td id="licPractical">—</td>
                     </tr>
                     <tr>
-                        <td>Current status</td>
+                        <td data-i18n="ui.lic.status">Current status</td>
                         <td id="licStatus">—</td>
                     </tr>
                     <tr>
-                        <td>Penalty points</td>
+                        <td data-i18n="ui.lic.points">Penalty points</td>
                         <td id="licPoints">—</td>
                     </tr>
                 </table>
@@ -421,12 +326,12 @@
     <!-- ──────────────────────────────── PENALTY POINTS ─── -->
     <section id="section-penalty" hidden>
         <div class="govuk-width-container">
-            <a href="#" class="govuk-back-link" data-section="dashboard">Back</a>
-            <h1 class="govuk-heading-xl">Penalty Points Record</h1>
+            <a href="#" class="govuk-back-link" data-section="dashboard" data-i18n="ui.back">Back</a>
+            <h1 class="govuk-heading-xl" data-i18n="ui.pen.heading">Penalty Points Record</h1>
 
             <div class="dvla-points-bar-container">
                 <div class="dvla-points-bar-label">
-                    <span>Penalty Points</span>
+                    <span data-i18n="ui.pen.label">Penalty Points</span>
                     <span id="pointsTotal">0 / 12</span>
                 </div>
                 <div class="dvla-points-bar">
@@ -437,23 +342,23 @@
                 </div>
             </div>
 
-            <div class="govuk-inset-text">
+            <div class="govuk-inset-text" data-i18n-html="ui.pen.info">
                 Penalty points are endorsed on your licence for a minimum of 4 years.
                 Totalling 12 or more points within 3 years triggers automatic disqualification.
             </div>
 
-            <h2 class="govuk-heading-m">Endorsement History</h2>
+            <h2 class="govuk-heading-m" data-i18n="ui.pen.history">Endorsement History</h2>
             <table class="govuk-table">
                 <thead class="govuk-table__head">
                     <tr class="govuk-table__row">
-                        <th class="govuk-table__header">Offence</th>
-                        <th class="govuk-table__header">Points</th>
-                        <th class="govuk-table__header">Date</th>
+                        <th class="govuk-table__header" data-i18n="ui.pen.offence">Offence</th>
+                        <th class="govuk-table__header" data-i18n="ui.pen.points">Points</th>
+                        <th class="govuk-table__header" data-i18n="ui.hist.date">Date</th>
                     </tr>
                 </thead>
                 <tbody class="govuk-table__body" id="penaltyTableBody">
                     <tr class="govuk-table__row">
-                        <td class="govuk-table__cell dvla-empty" colspan="3">No endorsements on record.</td>
+                        <td class="govuk-table__cell dvla-empty" colspan="3" data-i18n="ui.pen.empty">No endorsements on record.</td>
                     </tr>
                 </tbody>
             </table>
@@ -463,39 +368,39 @@
     <!-- ──────────────────────────────── TEST HISTORY ─── -->
     <section id="section-history" hidden>
         <div class="govuk-width-container">
-            <a href="#" class="govuk-back-link" data-section="dashboard">Back</a>
-            <h1 class="govuk-heading-xl">Test History</h1>
+            <a href="#" class="govuk-back-link" data-section="dashboard" data-i18n="ui.back">Back</a>
+            <h1 class="govuk-heading-xl" data-i18n="ui.hist.heading">Test History</h1>
 
-            <h2 class="govuk-heading-m">Theory Test Results</h2>
+            <h2 class="govuk-heading-m" data-i18n="ui.hist.theoryHeading">Theory Test Results</h2>
             <table class="govuk-table">
                 <thead class="govuk-table__head">
                     <tr class="govuk-table__row">
-                        <th class="govuk-table__header">Score</th>
-                        <th class="govuk-table__header">Result</th>
-                        <th class="govuk-table__header">Date</th>
+                        <th class="govuk-table__header" data-i18n="ui.hist.score">Score</th>
+                        <th class="govuk-table__header" data-i18n="ui.hist.result">Result</th>
+                        <th class="govuk-table__header" data-i18n="ui.hist.date">Date</th>
                     </tr>
                 </thead>
                 <tbody class="govuk-table__body" id="theoryHistoryBody">
                     <tr class="govuk-table__row">
-                        <td class="govuk-table__cell dvla-empty" colspan="3">No theory test records.</td>
+                        <td class="govuk-table__cell dvla-empty" colspan="3" data-i18n="ui.hist.emptyTheory">No theory test records.</td>
                     </tr>
                 </tbody>
             </table>
 
-            <h2 class="govuk-heading-m">Practical Test Results</h2>
+            <h2 class="govuk-heading-m" data-i18n="ui.hist.practicalHeading">Practical Test Results</h2>
             <table class="govuk-table">
                 <thead class="govuk-table__head">
                     <tr class="govuk-table__row">
-                        <th class="govuk-table__header">Centre</th>
-                        <th class="govuk-table__header">Minor Faults</th>
-                        <th class="govuk-table__header">Major Faults</th>
-                        <th class="govuk-table__header">Result</th>
-                        <th class="govuk-table__header">Date</th>
+                        <th class="govuk-table__header" data-i18n="ui.hist.centre">Centre</th>
+                        <th class="govuk-table__header" data-i18n="ui.hist.minor">Minor Faults</th>
+                        <th class="govuk-table__header" data-i18n="ui.hist.major">Major Faults</th>
+                        <th class="govuk-table__header" data-i18n="ui.hist.result">Result</th>
+                        <th class="govuk-table__header" data-i18n="ui.hist.date">Date</th>
                     </tr>
                 </thead>
                 <tbody class="govuk-table__body" id="practicalHistoryBody">
                     <tr class="govuk-table__row">
-                        <td class="govuk-table__cell dvla-empty" colspan="5">No practical test records.</td>
+                        <td class="govuk-table__cell dvla-empty" colspan="5" data-i18n="ui.hist.emptyPractical">No practical test records.</td>
                     </tr>
                 </tbody>
             </table>
@@ -505,16 +410,16 @@
     <!-- ──────────────────────────────── REPLACE LICENCE ─── -->
     <section id="section-replace" hidden>
         <div class="govuk-width-container">
-            <a href="#" class="govuk-back-link" data-section="dashboard">Back</a>
-            <h1 class="govuk-heading-xl">Replace Driving Licence</h1>
+            <a href="#" class="govuk-back-link" data-section="dashboard" data-i18n="ui.back">Back</a>
+            <h1 class="govuk-heading-xl" data-i18n="ui.replace.heading">Replace Driving Licence</h1>
 
             <!-- No licence on record -->
             <div id="replaceNoLicence" hidden>
                 <div class="dvla-alert dvla-alert--warning">
                     <span class="dvla-alert__icon">&#9888;</span>
                     <div>
-                        <strong>No Licence on Record</strong>
-                        <p>You do not hold a driving licence that can be replaced. You must pass your theory and practical tests first.</p>
+                        <strong data-i18n="ui.replace.noLicenceTitle">No Licence on Record</strong>
+                        <p data-i18n="ui.replace.noLicenceBody">You do not hold a driving licence that can be replaced. You must pass your theory and practical tests first.</p>
                     </div>
                 </div>
             </div>
@@ -524,15 +429,15 @@
                 <div class="dvla-alert dvla-alert--info">
                     <span class="dvla-alert__icon">&#8505;</span>
                     <div>
-                        <strong>Licence Already in Possession</strong>
-                        <p>Your driving licence is already in your inventory. A replacement is only issued if your licence is lost or stolen.</p>
+                        <strong data-i18n="ui.replace.haveTitle">Licence Already in Possession</strong>
+                        <p data-i18n="ui.replace.haveBody">Your driving licence is already in your inventory. A replacement is only issued if your licence is lost or stolen.</p>
                     </div>
                 </div>
             </div>
 
             <!-- Can apply -->
             <div id="replaceCanApply" hidden>
-                <div class="govuk-inset-text">
+                <div class="govuk-inset-text" data-i18n-html="ui.replace.info">
                     You can apply for a replacement if your driving licence has been <strong>lost, stolen or destroyed</strong>.
                     A replacement licence will be issued with your existing categories and entitlements intact.
                 </div>
@@ -540,28 +445,28 @@
                 <div class="dvla-alert dvla-alert--warning" style="margin-bottom: 1.5rem;">
                     <span class="dvla-alert__icon">&#9888;</span>
                     <div>
-                        <strong>Replacement Fee: £<span class="js-replace-fee">20</span></strong>
-                        <p>Replacement licences are ordered on <strong>lsgov.co.uk</strong> (Driving and transport &rarr; Driving licence and tests). You pick a Postal Prime locker and collect it there. Your old licence stops working as soon as you order.</p>
+                        <strong id="replaceFeeHeading">Replacement Fee: £20</strong>
+                        <p data-i18n-html="ui.replace.feeBody">Replacement licences are ordered on <strong>lsgov.co.uk</strong> (Driving and transport &rarr; Driving licence and tests). You pick a Postal Prime locker and collect it there. Your old licence stops working as soon as you order.</p>
                     </div>
                 </div>
 
                 <table class="govuk-table" style="margin-bottom: 1.5rem;">
-                    <caption class="govuk-table__caption govuk-table__caption--s">Your licence details to be reissued</caption>
+                    <caption class="govuk-table__caption govuk-table__caption--s" data-i18n="ui.replace.tableCaption">Your licence details to be reissued</caption>
                     <tbody class="govuk-table__body">
                         <tr class="govuk-table__row">
-                            <td class="govuk-table__cell" style="width:40%">Name</td>
+                            <td class="govuk-table__cell" style="width:40%" data-i18n="ui.replace.name">Name</td>
                             <td class="govuk-table__cell" id="replaceName">—</td>
                         </tr>
                         <tr class="govuk-table__row">
-                            <td class="govuk-table__cell">Licence type</td>
+                            <td class="govuk-table__cell" data-i18n="ui.replace.licType">Licence type</td>
                             <td class="govuk-table__cell" id="replaceLicType">—</td>
                         </tr>
                         <tr class="govuk-table__row">
-                            <td class="govuk-table__cell">Categories held</td>
+                            <td class="govuk-table__cell" data-i18n="ui.replace.categories">Categories held</td>
                             <td class="govuk-table__cell" id="replaceCategories">—</td>
                         </tr>
                         <tr class="govuk-table__row">
-                            <td class="govuk-table__cell">Original issue date</td>
+                            <td class="govuk-table__cell" data-i18n="ui.replace.issueDate">Original issue date</td>
                             <td class="govuk-table__cell" id="replaceIssueDate">—</td>
                         </tr>
                     </tbody>
@@ -571,8 +476,8 @@
                     <div class="dvla-alert dvla-alert--success">
                         <span class="dvla-alert__icon">&#10003;</span>
                         <div>
-                            <strong>Replacement Issued</strong>
-                            <p>Your replacement driving licence has been added to your inventory.</p>
+                            <strong data-i18n="ui.replace.issuedTitle">Replacement Issued</strong>
+                            <p data-i18n="ui.replace.issuedBody">Your replacement driving licence has been added to your inventory.</p>
                         </div>
                     </div>
                 </div>
@@ -583,7 +488,7 @@
                 </div>
 
                 <button class="govuk-button" id="btnReplaceLicence" style="display:none">
-                    &#128260; Apply for Replacement &mdash; £<span class="js-replace-fee">20</span>
+                    &#128260; Apply for Replacement &mdash; £20
                 </button>
             </div>
         </div>
@@ -596,12 +501,12 @@
 ═══════════════════════════════════════════════════════════════ -->
 <footer class="govuk-footer">
     <div class="govuk-footer__links">
-        <a href="#" class="govuk-footer__link">Privacy</a>
-        <a href="#" class="govuk-footer__link">Accessibility statement</a>
-        <a href="#" class="govuk-footer__link">Contact DVLA</a>
-        <a href="#" class="govuk-footer__link">Cookies</a>
+        <a href="#" class="govuk-footer__link" data-i18n="ui.footer.privacy">Privacy</a>
+        <a href="#" class="govuk-footer__link" data-i18n="ui.footer.accessibility">Accessibility statement</a>
+        <a href="#" class="govuk-footer__link" data-i18n="ui.footer.contact">Contact DVLA</a>
+        <a href="#" class="govuk-footer__link" data-i18n="ui.footer.cookies">Cookies</a>
     </div>
-    <p class="govuk-footer__meta">&copy; Crown copyright &mdash; Driver &amp; Vehicle Licensing Agency, United Kingdom</p>
+    <p class="govuk-footer__meta" data-i18n="ui.footer.meta">&copy; Crown copyright &mdash; Driver &amp; Vehicle Licensing Agency, United Kingdom</p>
 </footer>
 
 <script src="js/app.js"></script>
@@ -618,8 +523,8 @@
         <div class="lc-from" id="lcFrom"></div>
         <div class="lc-card" id="lcCard">
             <div class="lc-head">
-                <span class="lc-title">Driving Licence</span>
-                <span class="lc-country">United Kingdom</span>
+                <span class="lc-title" data-i18n="card.title">Driving Licence</span>
+                <span class="lc-country" data-i18n="card.country">United Kingdom</span>
                 <span class="lc-badge">UK</span>
             </div>
             <div class="lc-status" id="lcStatus"></div>
@@ -627,26 +532,26 @@
             <div class="lc-body">
                 <div class="lc-photo" id="lcPhoto"></div>
                 <div class="lc-fields">
-                    <div class="lc-f lc-full"><span class="lc-n">1.</span><span class="lc-k">Surname</span><div class="lc-v" id="lcLast"></div></div>
-                    <div class="lc-f lc-full"><span class="lc-n">2.</span><span class="lc-k">Given names</span><div class="lc-v" id="lcFirst"></div></div>
-                    <div class="lc-f"><span class="lc-n">3.</span><span class="lc-k">Date of birth</span><div class="lc-v" id="lcDob"></div></div>
-                    <div class="lc-f"><span class="lc-n">&nbsp;</span><span class="lc-k">Sex / Nationality</span><div class="lc-v" id="lcSexNat"></div></div>
-                    <div class="lc-f"><span class="lc-n">4a.</span><span class="lc-k">Issued</span><div class="lc-v" id="lcIssued"></div></div>
-                    <div class="lc-f"><span class="lc-n">4b.</span><span class="lc-k">Valid until</span><div class="lc-v" id="lcExpires"></div></div>
-                    <div class="lc-f"><span class="lc-n">4c.</span><span class="lc-k">Issued by</span><div class="lc-v" id="lcAuth"></div></div>
-                    <div class="lc-f"><span class="lc-n">5.</span><span class="lc-k">Licence number</span><div class="lc-v lc-mono" id="lcNumber"></div></div>
+                    <div class="lc-f lc-full"><span class="lc-n">1.</span><span class="lc-k" data-i18n="card.surname">Surname</span><div class="lc-v" id="lcLast"></div></div>
+                    <div class="lc-f lc-full"><span class="lc-n">2.</span><span class="lc-k" data-i18n="card.given">Given names</span><div class="lc-v" id="lcFirst"></div></div>
+                    <div class="lc-f"><span class="lc-n">3.</span><span class="lc-k" data-i18n="card.dob">Date of birth</span><div class="lc-v" id="lcDob"></div></div>
+                    <div class="lc-f"><span class="lc-n">&nbsp;</span><span class="lc-k" data-i18n="card.sexNat">Sex / Nationality</span><div class="lc-v" id="lcSexNat"></div></div>
+                    <div class="lc-f"><span class="lc-n">4a.</span><span class="lc-k" data-i18n="card.issued">Issued</span><div class="lc-v" id="lcIssued"></div></div>
+                    <div class="lc-f"><span class="lc-n">4b.</span><span class="lc-k" data-i18n="card.validUntil">Valid until</span><div class="lc-v" id="lcExpires"></div></div>
+                    <div class="lc-f"><span class="lc-n">4c.</span><span class="lc-k" data-i18n="card.issuedBy">Issued by</span><div class="lc-v" id="lcAuth"></div></div>
+                    <div class="lc-f"><span class="lc-n">5.</span><span class="lc-k" data-i18n="card.number">Licence number</span><div class="lc-v lc-mono" id="lcNumber"></div></div>
                 </div>
             </div>
             <div class="lc-cats">
-                <span class="lc-n">9.</span><span class="lc-k">Categories</span>
+                <span class="lc-n">9.</span><span class="lc-k" data-i18n="card.categories">Categories</span>
                 <div class="lc-chips" id="lcChips"></div>
             </div>
         </div>
         <div class="lc-actions">
-            <button class="lc-btn lc-primary" id="lcShow">Show to person nearby</button>
-            <button class="lc-btn" id="lcClose">Close</button>
+            <button class="lc-btn lc-primary" id="lcShow" data-i18n="card.show">Show to person nearby</button>
+            <button class="lc-btn" id="lcClose" data-i18n="card.close">Close</button>
         </div>
-        <div class="lc-hint">Press Esc to close</div>
+        <div class="lc-hint" data-i18n="card.hint">Press Esc to close</div>
     </div>
 </div>
 </body>

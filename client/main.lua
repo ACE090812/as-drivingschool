@@ -10,7 +10,7 @@ local function openPortal()
 
     QBCore.Functions.TriggerCallback('dvla:server:getData', function(data)
         if not data then
-            QBCore.Functions.Notify('Unable to connect to DVLA services.', 'error')
+            QBCore.Functions.Notify(T('err.noConnection'), 'error')
             return
         end
         isOpen = true
@@ -72,7 +72,7 @@ local function usePrompt()
                 DrawMarker(2, P.coords.x, P.coords.y, P.coords.z + 0.3, 0, 0, 0, 0, 0, 0, 0.25, 0.25, 0.25, 0, 112, 60, 160, false, true, 2, false, nil, nil, false)
                 if dist < P.distance and not isOpen then
                     BeginTextCommandDisplayHelp('STRING')
-                    AddTextComponentSubstringPlayerName('Press ~INPUT_CONTEXT~ - ' .. P.label)
+                    AddTextComponentSubstringPlayerName(T('prompt.openPortal', P.label))
                     EndTextCommandDisplayHelp(0, false, true, -1)
                     if IsControlJustReleased(0, 38) then openPortal() end
                 end
@@ -137,7 +137,7 @@ end
 local function examinerSay(text, duration)
     duration = duration or 5000
     local cfg = Config.AIPractical
-    local msg = '[' .. cfg.examinerName .. ']: ' .. text
+    local msg = T('examiner.line', cfg.examinerName, text)
     -- Display as help text (top-left hint style) for duration ms
     local endTime = GetGameTimer() + duration
     CreateThread(function()
@@ -157,8 +157,7 @@ local function startHUD(catCfg)
         while practicalActive do
             local total = #catCfg.checkpoints
             local cp    = math.min(practicalCheckpoint, total)
-            local label = 'DVLA Practical [' .. catCfg.label .. ']  |  Checkpoint: ' .. cp .. '/' .. total
-                       .. '  |  Minor Faults: ' .. practicalMinorFaults .. '/' .. cfg.maxMinorFaults
+            local label = T('hud.line', catCfg.label, cp, total, practicalMinorFaults, cfg.maxMinorFaults)
 
             -- Draw top-centre text
             SetTextFont(4)
@@ -190,7 +189,7 @@ local function setCheckpointBlip(catCfg)
     SetBlipRouteColour(practicalCpBlip, 3)
 
     BeginTextCommandSetBlipName('STRING')
-    AddTextComponentSubstringPlayerName('Checkpoint ' .. practicalCheckpoint .. '/' .. #catCfg.checkpoints)
+    AddTextComponentSubstringPlayerName(T('blip.checkpoint', practicalCheckpoint, #catCfg.checkpoints))
     EndTextCommandSetBlipName(practicalCpBlip)
 
     examinerSay(cp.instruction, 6000)
@@ -238,12 +237,11 @@ local function endPracticalTest(passed, failReason, categoryLabel)
         if result and result.success then
             if passedBool then
                 QBCore.Functions.Notify(
-                    'Practical Test PASSED! Minor faults: ' .. minor .. '. Full UK Driving Licence issued.',
+                    T('practical.passed', minor),
                     'success', 8000)
             else
-                local reason = failReason and (' | ' .. failReason) or ''
                 QBCore.Functions.Notify(
-                    'Practical Test FAILED.' .. reason .. ' Minor faults: ' .. minor,
+                    failReason and T('practical.failedReason', failReason, minor) or T('practical.failed', minor),
                     'error', 8000)
             end
         end
@@ -253,7 +251,7 @@ end
 -- Main test launcher
 local function startAIPracticalTest(categoryLabel)
     if practicalActive then
-        QBCore.Functions.Notify('A practical test is already in progress.', 'error')
+        QBCore.Functions.Notify(T('toast.testInProgress'), 'error')
         return
     end
 
@@ -263,7 +261,7 @@ local function startAIPracticalTest(categoryLabel)
         if c.label == categoryLabel then catCfg = c break end
     end
     if not catCfg then
-        QBCore.Functions.Notify('Unknown licence category: ' .. tostring(categoryLabel), 'error')
+        QBCore.Functions.Notify(T('toast.unknownLicenceCategory', tostring(categoryLabel)), 'error')
         return
     end
 
@@ -276,13 +274,13 @@ local function startAIPracticalTest(categoryLabel)
     practicalMinorFaults = 0
     practicalMajorFaults = 0
 
-    QBCore.Functions.Notify('Your examiner is preparing the ' .. catCfg.name .. ' test vehicle...', 'primary', 4000)
+    QBCore.Functions.Notify(T('toast.preparing', catCfg.name), 'primary', 4000)
     Wait(1500)
 
     -- ── Spawn vehicle ──────────────────────────────────────
     local vehHash = GetHashKey(catCfg.vehicle)
     if not loadModel(vehHash) then
-        QBCore.Functions.Notify('Failed to load test vehicle. Please try again.', 'error')
+        QBCore.Functions.Notify(T('toast.vehicleFailed'), 'error')
         practicalActive = false
         return
     end
@@ -302,7 +300,7 @@ local function startAIPracticalTest(categoryLabel)
     if catCfg.trailer then
         local trailerHash = GetHashKey(catCfg.trailer)
         if not loadModel(trailerHash) then
-            QBCore.Functions.Notify('Failed to load test trailer. Please try again.', 'error')
+            QBCore.Functions.Notify(T('toast.trailerFailed'), 'error')
             DeleteEntity(veh)
             practicalVehicle = 0
             practicalActive  = false
@@ -328,7 +326,7 @@ local function startAIPracticalTest(categoryLabel)
         SetBlipColour(trailerBlip, 5)       -- yellow
         SetBlipScale(trailerBlip, 0.9)
         BeginTextCommandSetBlipName('STRING')
-        AddTextComponentSubstringPlayerName('Test Trailer')
+        AddTextComponentSubstringPlayerName(T('blip.trailer'))
         EndTextCommandSetBlipName(trailerBlip)
 
         -- Seat player in the tow vehicle first so they can reverse onto the trailer
@@ -336,10 +334,10 @@ local function startAIPracticalTest(categoryLabel)
         Wait(800)
 
         QBCore.Functions.Notify(
-            '🚗 Reverse slowly onto the trailer hitch to couple it before the test begins.',
+            T('toast.reverseToHitch'),
             'primary', 10000)
         examinerSay(
-            'Before we start — please reverse your vehicle onto the trailer behind you until you feel it couple.',
+            T('examiner.hookIntro'),
             9000)
 
         -- Poll until the trailer is attached or timeout expires
@@ -355,7 +353,7 @@ local function startAIPracticalTest(categoryLabel)
             if attached then
                 -- Coupled!
                 RemoveBlip(trailerBlip)
-                examinerSay('Good — trailer is coupled. Let\'s begin the test. Follow the GPS route.', 7000)
+                examinerSay(T('examiner.coupled'), 7000)
                 Wait(1500)
                 break
             end
@@ -366,7 +364,7 @@ local function startAIPracticalTest(categoryLabel)
                 hookTick = 0
                 local remaining = math.ceil((deadline - GetGameTimer()) / 1000)
                 QBCore.Functions.Notify(
-                    'Trailer not yet hooked — ' .. remaining .. 's remaining. Reverse onto the hitch.',
+                    T('toast.hitchReminder', remaining),
                     'error', 5000)
             end
         end
@@ -375,9 +373,9 @@ local function startAIPracticalTest(categoryLabel)
         local finalAttached, _ = GetVehicleTrailerVehicle(veh)
         if not finalAttached then
             RemoveBlip(trailerBlip)
-            examinerSay('You failed to couple the trailer in time. Test cancelled.', 6000)
+            examinerSay(T('examiner.hookFailed'), 6000)
             Wait(3000)
-            endPracticalTest(false, 'Failed to couple trailer before test start', categoryLabel)
+            endPracticalTest(false, T('fail.hookFailed'), categoryLabel)
             return
         end
     end
@@ -408,9 +406,9 @@ local function startAIPracticalTest(categoryLabel)
     -- Opening examiner line (BE trailer greeting already given above)
     if not catCfg.trailer then
         if catCfg.examinerInVehicle then
-            examinerSay("Good morning. I'm " .. cfg.examinerName .. ", your DVLA examiner for the " .. catCfg.name .. " test. Follow the GPS route.", 7000)
+            examinerSay(T('examiner.greeting', cfg.examinerName, catCfg.name), 7000)
         else
-            QBCore.Functions.Notify('[' .. cfg.examinerName .. ']: Good morning. I will observe your ' .. catCfg.name .. ' test remotely. Follow the GPS route carefully.', 'primary', 7000)
+            QBCore.Functions.Notify(T('toast.remoteGreeting', cfg.examinerName, catCfg.name), 'primary', 7000)
         end
     end
 
@@ -437,10 +435,10 @@ local function startAIPracticalTest(categoryLabel)
             if inVeh ~= veh then
                 if not abandonTimer then
                     abandonTimer = now
-                    QBCore.Functions.Notify('Please return to the test vehicle!', 'error', 4000)
+                    QBCore.Functions.Notify(T('toast.returnToVehicle'), 'error', 4000)
                 elseif now - abandonTimer > 12000 then
-                    examinerSay('You have left the test vehicle. Test terminated.', 5000)
-                    endPracticalTest(false, 'Left the test vehicle', categoryLabel)
+                    examinerSay(T('examiner.leftVehicle'), 5000)
+                    endPracticalTest(false, T('fail.leftVehicle'), categoryLabel)
                     break
                 end
             else
@@ -455,15 +453,15 @@ local function startAIPracticalTest(categoryLabel)
                 -- Speed faults
                 if speed > cfg.majorSpeedMph then
                     practicalMajorFaults = practicalMajorFaults + 1
-                    examinerSay('That speed is extremely dangerous. Test terminated — major fault.', 6000)
-                    endPracticalTest(false, 'Dangerous speed (' .. math.floor(speed) .. ' mph)', categoryLabel)
+                    examinerSay(T('examiner.dangerousSpeed'), 6000)
+                    endPracticalTest(false, T('fail.dangerousSpeed', math.floor(speed)), categoryLabel)
                     break
                 elseif speed > (limit + cfg.minorSpeedOver) then
                     if now - lastSpeedWarn > cfg.warningCooldown then
                         practicalMinorFaults = practicalMinorFaults + 1
                         lastSpeedWarn        = now
-                        examinerSay('You are exceeding the speed limit. Minor fault recorded.', 5000)
-                        QBCore.Functions.Notify('Minor fault — speeding (' .. math.floor(speed) .. ' mph in ' .. limit .. ' mph zone)', 'error', 3000)
+                        examinerSay(T('examiner.speeding'), 5000)
+                        QBCore.Functions.Notify(T('toast.minorSpeeding', math.floor(speed), limit), 'error', 3000)
                     end
                 end
 
@@ -472,14 +470,14 @@ local function startAIPracticalTest(categoryLabel)
                 local drop       = prevBodyHealth - bodyHealth
                 if drop >= cfg.collisionMajor then
                     practicalMajorFaults = practicalMajorFaults + 1
-                    examinerSay('That collision was unacceptable. Major fault — test terminated.', 6000)
-                    endPracticalTest(false, 'Serious collision', categoryLabel)
+                    examinerSay(T('examiner.collisionMajor'), 6000)
+                    endPracticalTest(false, T('fail.collision'), categoryLabel)
                     prevBodyHealth = bodyHealth
                     break
                 elseif drop >= cfg.collisionMinor then
                     practicalMinorFaults = practicalMinorFaults + 1
-                    examinerSay('Please be more careful. Minor fault noted.', 5000)
-                    QBCore.Functions.Notify('Minor fault — vehicle contact', 'error', 3000)
+                    examinerSay(T('examiner.collisionMinor'), 5000)
+                    QBCore.Functions.Notify(T('toast.minorContact'), 'error', 3000)
                     prevBodyHealth = bodyHealth
                 else
                     prevBodyHealth = bodyHealth
@@ -490,16 +488,16 @@ local function startAIPracticalTest(categoryLabel)
                     local stillAttached, _ = GetVehicleTrailerVehicle(veh)
                     if not stillAttached then
                         practicalMajorFaults = practicalMajorFaults + 1
-                        examinerSay('You have decoupled the trailer during the test — major fault. Test terminated.', 7000)
-                        endPracticalTest(false, 'Trailer decoupled during test', categoryLabel)
+                        examinerSay(T('examiner.decoupled'), 7000)
+                        endPracticalTest(false, T('fail.decoupled'), categoryLabel)
                         break
                     end
                 end
 
                 -- Too many minor faults
                 if practicalMinorFaults > cfg.maxMinorFaults then
-                    examinerSay('Too many minor faults. Test failed.', 6000)
-                    endPracticalTest(false, 'Too many minor faults (' .. practicalMinorFaults .. ')', categoryLabel)
+                    examinerSay(T('examiner.tooManyMinor'), 6000)
+                    endPracticalTest(false, T('fail.tooManyMinor', practicalMinorFaults), categoryLabel)
                     break
                 end
 
@@ -513,15 +511,15 @@ local function startAIPracticalTest(categoryLabel)
                             if practicalCpBlip then RemoveBlip(practicalCpBlip) practicalCpBlip = nil end
                             local testPassed = practicalMajorFaults == 0 and practicalMinorFaults <= cfg.maxMinorFaults
                             if testPassed then
-                                examinerSay('You have completed the route! I am pleased to tell you that you have PASSED the ' .. catCfg.name .. ' test. Congratulations!', 8000)
+                                examinerSay(T('examiner.routePassed', catCfg.name), 8000)
                             else
-                                examinerSay('You have completed the route. Unfortunately you have FAILED. Please see your fault summary.', 8000)
+                                examinerSay(T('examiner.routeFailed'), 8000)
                             end
                             Wait(4000)
                             endPracticalTest(testPassed, nil, categoryLabel)
                             break
                         else
-                            QBCore.Functions.Notify('Checkpoint ' .. (practicalCheckpoint - 1) .. ' reached ✓', 'success', 2500)
+                            QBCore.Functions.Notify(T('toast.checkpointReached', practicalCheckpoint - 1), 'success', 2500)
                             Wait(500)
                             setCheckpointBlip(catCfg)
                         end
@@ -531,9 +529,9 @@ local function startAIPracticalTest(categoryLabel)
 
             -- Time limit
             if (GetGameTimer() - testStart) > (catCfg.duration * 1000) then
-                examinerSay('Time limit reached. Test terminated.', 5000)
+                examinerSay(T('examiner.timeLimit'), 5000)
                 Wait(3000)
-                endPracticalTest(false, 'Test time limit exceeded', categoryLabel)
+                endPracticalTest(false, T('fail.timeLimit'), categoryLabel)
                 break
             end
         end
@@ -543,6 +541,9 @@ end
 -- ──────────────────────────────────────────────────────────────────────────────
 --  NUI CALLBACKS
 -- ──────────────────────────────────────────────────────────────────────────────
+
+-- Language dictionary for the NUI page (see html/js/app.js loadLocale)
+RegisterNUICallback('locale', function(_, cb) cb(LocaleDict()) end)
 
 RegisterNUICallback('closeUI', function(_, cb)
     isOpen = false
@@ -562,7 +563,7 @@ RegisterNUICallback('startAIPractical', function(data, cb)
     -- The server checks the test is booked (lsgov.co.uk) before the examiner spawns.
     QBCore.Functions.TriggerCallback('dvla:server:canStartPractical', function(result)
         if not result or not result.success then
-            QBCore.Functions.Notify((result and result.reason) or 'You cannot start this test.', 'error', 6000)
+            QBCore.Functions.Notify((result and result.reason) or T('err.cannotStartTest'), 'error', 6000)
             cb({ success = false })
             return
         end
@@ -573,38 +574,6 @@ RegisterNUICallback('startAIPractical', function(data, cb)
         Wait(600)
         startAIPracticalTest(categoryLabel)
     end, categoryLabel)
-end)
-
--- Get current vehicle plate (for MOT)
-RegisterNUICallback('getVehiclePlate', function(_, cb)
-    local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
-    if vehicle ~= 0 then
-        local plate = GetVehicleNumberPlateText(vehicle)
-        cb({ plate = plate:match('^%s*(.-)%s*$') })
-    else
-        cb({ plate = '' })
-    end
-end)
-
--- Book MOT
-RegisterNUICallback('bookMOT', function(data, cb)
-    QBCore.Functions.TriggerCallback('dvla:server:bookMOT', function(result)
-        cb(result)
-    end, data.plate)
-end)
-
--- Refresh MOT Queue (inspector)
-RegisterNUICallback('getPendingMOT', function(_, cb)
-    QBCore.Functions.TriggerCallback('dvla:server:getPendingMOT', function(result)
-        cb(result or {})
-    end)
-end)
-
--- Complete MOT (inspector)
-RegisterNUICallback('completeMOT', function(data, cb)
-    QBCore.Functions.TriggerCallback('dvla:server:completeMOT', function(result)
-        cb(result)
-    end, data.citizenid, data.plate, data.passed, data.notes)
 end)
 
 -- Replace lost/stolen licence
@@ -637,9 +606,9 @@ local function registerLicenceMetadata()
     if GetResourceState('ox_inventory') ~= 'started' then return end
     pcall(function()
         exports.ox_inventory:displayMetadata({
-            categories = 'Categories',
-            issuedate  = 'Issued',
-            expirydate = 'Expires',
+            categories = T('inv.categories'),
+            issuedate  = T('inv.issued'),
+            expirydate = T('inv.expires'),
         })
     end)
 end
@@ -684,7 +653,7 @@ RegisterNetEvent('dvla:client:useItem', function()
     if cardOpen or isOpen then return end
     QBCore.Functions.TriggerCallback('dvla:server:getCard', function(res)
         if not res or not res.card then
-            QBCore.Functions.Notify((res and res.error) or 'This licence is not readable.', 'error')
+            QBCore.Functions.Notify((res and res.error) or T('err.licenceUnreadable'), 'error')
             return
         end
         if res.needPhoto then

@@ -2,11 +2,13 @@ fx_version 'cerulean'
 game 'gta5'
 
 author 'AS'
-description 'DVLA driving school: theory and practical tests, MOT, penalty points, and lsgov.co.uk booking'
+description 'DVLA driving school: theory and practical tests, penalty points, and lsgov.co.uk booking'
 version '1.0.0'
 
 shared_scripts {
-    'config.lua'
+    'config.lua',
+    'shared/locale.lua',
+    'locales/*.lua'
 }
 
 client_scripts {

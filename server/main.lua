@@ -3,9 +3,6 @@ local QBCore = exports['qb-core']:GetCoreObject()
 -- oxmysql can return TINYINT(1) columns as true/false or 1/0 depending on version, so never compare with == 1.
 local function flag(v) return v == true or v == 1 or v == '1' end
 
--- In-memory queues (reset on resource restart)
-local pendingMOT = {}
-
 -- ──────────────────────────────────────────────────────────────────────────────
 --  HELPERS
 -- ──────────────────────────────────────────────────────────────────────────────
@@ -23,16 +20,6 @@ local function hasJob(jobName, jobList)
         if v == jobName then return true end
     end
     return false
-end
-
-local function notifyOnlinePlayers(jobList, msg, msgType)
-    local players = QBCore.Functions.GetPlayers()
-    for _, playerId in ipairs(players) do
-        local p = QBCore.Functions.GetPlayer(playerId)
-        if p and hasJob(p.PlayerData.job.name, jobList) then
-            TriggerClientEvent('QBCore:Notify', playerId, msg, msgType or 'primary')
-        end
-    end
 end
 
 local function notifyByCitizenId(citizenid, msg, msgType)
@@ -62,7 +49,7 @@ end
 --  Exports at the bottom of this file are used by the government site in as-browser.
 -- ──────────────────────────────────────────────────────────────────────────────
 
-Config.Fees    = Config.Fees    or { theory = 25, practical = 75, mot = 40, replace = 20 }
+Config.Fees    = Config.Fees    or { theory = 25, practical = 75, replace = 20 }
 Config.Booking = Config.Booking or { required = true, requirePassport = true }
 
 Config.Card = Config.Card or { photo = true, authority = 'DVLA', validYears = 10, nationality = 'British', showDistance = 3.0 }
@@ -147,7 +134,7 @@ end
 local function phoneNotify(source, title, body)
     if not source then return end
     pcall(function()
-        exports['sd-phone']:notify(source, { app = 'as-browser', appId = 'as-browser', title = title, body = body, time = 'now' })
+        exports['sd-phone']:notify(source, { app = 'as-browser', appId = 'as-browser', title = title, body = body, time = T('phone.time.now') })
     end)
 end
 
@@ -197,7 +184,7 @@ local function passportProblem(source)
     if GetResourceState('as-passport') ~= 'started' then return nil end
     local ok, valid = pcall(function() return exports['as-passport']:hasValidPassport(source) end)
     if not ok or valid then return nil end
-    return 'You need a valid passport to book a driving test. Apply for one on lsgov.co.uk.'
+    return T('book.passportNeeded')
 end
 
 local function unusedCount(citizenid, kind, category)
@@ -217,7 +204,7 @@ end
 --- Everything the booking pages need: fees, what can be booked, and why not.
 local function bookingState(source)
     local Player = QBCore.Functions.GetPlayer(source)
-    if not Player then return nil, 'You are not signed in.' end
+    if not Player then return nil, T('err.notSignedIn') end
     local cid = Player.PlayerData.citizenid
     initPlayer(cid)
     local lic = MySQL.single.await('SELECT * FROM dvla_licences WHERE citizenid = ?', { cid })
@@ -227,7 +214,7 @@ local function bookingState(source)
     local theoryPassed = flag(lic.theory_passed)
 
     local function blocked()
-        if suspended then return 'Your licence is suspended.' end
+        if suspended then return T('err.suspended') end
         return passportMsg
     end
 
@@ -235,8 +222,8 @@ local function bookingState(source)
     theory.canBook, theory.reason = true, nil
     local why = blocked()
     if why then theory.canBook, theory.reason = false, why
-    elseif theoryPassed then theory.canBook, theory.reason = false, 'You have already passed your theory test.'
-    elseif theory.booked > 0 then theory.canBook, theory.reason = false, 'You already have a theory test booked.' end
+    elseif theoryPassed then theory.canBook, theory.reason = false, T('book.theoryAlreadyPassed')
+    elseif theory.booked > 0 then theory.canBook, theory.reason = false, T('book.theoryAlreadyBooked') end
 
     local practical = {}
     for _, cat in ipairs(Config.Categories) do
@@ -248,10 +235,10 @@ local function bookingState(source)
         local missing
         for _, req in ipairs(e.requires) do if not held[req] then missing = req break end end
         if why then e.canBook, e.reason = false, why
-        elseif e.held then e.canBook, e.reason = false, 'You already hold this category.'
-        elseif not theoryPassed then e.canBook, e.reason = false, 'Pass your theory test first.'
-        elseif missing then e.canBook, e.reason = false, ('You must hold category %s first.'):format(missing)
-        elseif e.booked > 0 then e.canBook, e.reason = false, 'You already have this test booked.' end
+        elseif e.held then e.canBook, e.reason = false, T('book.alreadyHold')
+        elseif not theoryPassed then e.canBook, e.reason = false, T('book.theoryFirst')
+        elseif missing then e.canBook, e.reason = false, T('book.needCategory', missing)
+        elseif e.booked > 0 then e.canBook, e.reason = false, T('book.alreadyBooked') end
         practical[#practical + 1] = e
     end
 
@@ -267,28 +254,28 @@ local bookingBusy = {}
 --- Books and pays for a test. kind = 'theory' or 'practical' (with a category label).
 --- Returns { kind, category, label, price } or nil, message.
 local function bookTest(source, kind, category)
-    if bookingBusy[source] then return nil, 'Please wait, your last request is still being processed.' end
+    if bookingBusy[source] then return nil, T('err.busy') end
     bookingBusy[source] = true
     local ok, res, err = pcall(function()
         local Player = QBCore.Functions.GetPlayer(source)
-        if not Player then return nil, 'You are not signed in.' end
+        if not Player then return nil, T('err.notSignedIn') end
         local state, why = bookingState(source)
         if not state then return nil, why end
 
         local entry, label, price
         if kind == 'theory' then
-            entry, label, price, category = state.theory, 'Theory test', Config.Fees.theory, ''
+            entry, label, price, category = state.theory, T('book.label.theory'), Config.Fees.theory, ''
         elseif kind == 'practical' then
             for _, e in ipairs(state.practical) do if e.label == category then entry = e end end
-            if not entry then return nil, 'Choose a licence category.' end
-            label, price = ('Practical test - category %s'):format(category), Config.Fees.practical
+            if not entry then return nil, T('book.chooseCategory') end
+            label, price = T('book.label.practical', category), Config.Fees.practical
         else
-            return nil, 'Choose a test to book.'
+            return nil, T('book.chooseTest')
         end
-        if not entry.canBook then return nil, entry.reason or 'You cannot book this test.' end
+        if not entry.canBook then return nil, entry.reason or T('book.cannotBook') end
 
         if not charge(Player, price, 'dvla-' .. kind .. '-test', true) then
-            return nil, 'You do not have enough money in your bank account.'
+            return nil, T('err.noFunds')
         end
         local inserted = pcall(function()
             MySQL.insert.await(
@@ -297,19 +284,19 @@ local function bookTest(source, kind, category)
         end)
         if not inserted then
             Player.Functions.AddMoney('bank', price, 'dvla-booking-refund')
-            return nil, 'We could not book your test. You have not been charged, please try again.'
+            return nil, T('book.saveFailed')
         end
         return { kind = kind, category = category or '', label = label, price = price }
     end)
     bookingBusy[source] = nil
-    if not ok then print('^1[DVLA] ^7booking failed: ' .. tostring(res)); return nil, 'Something went wrong. Please try again.' end
+    if not ok then print('^1[DVLA] ^7booking failed: ' .. tostring(res)); return nil, T('err.generic') end
     return res, err
 end
 
 --- The licence as the website shows it.
 local function licenceSummary(source)
     local Player = QBCore.Functions.GetPlayer(source)
-    if not Player then return nil, 'You are not signed in.' end
+    if not Player then return nil, T('err.notSignedIn') end
     local cid = Player.PlayerData.citizenid
     initPlayer(cid)
     local lic = MySQL.single.await('SELECT * FROM dvla_licences WHERE citizenid = ?', { cid })
@@ -329,8 +316,8 @@ local function licenceSummary(source)
         local pending = pendingReplacement(cid)
         local mode = deliveryMode()
         local reason
-        if not flag(lic.practical_passed) then reason = 'You need to pass a practical test first.'
-        elseif pending then reason = 'You already have a replacement licence on its way.' end
+        if not flag(lic.practical_passed) then reason = T('replace.needPractical')
+        elseif pending then reason = T('replace.pending') end
         out.canReplace = reason == nil
         out.replace = {
             fee = Config.Fees.replace, canReplace = reason == nil, reason = reason, mode = mode,
@@ -405,21 +392,6 @@ CreateThread(function()
         ALTER TABLE `dvla_practical_tests` ADD COLUMN IF NOT EXISTS `category` VARCHAR(10) DEFAULT 'B'
     ]])
     MySQL.query.await([[
-        CREATE TABLE IF NOT EXISTS `dvla_mot_tests` (
-            `id` INT(11) NOT NULL AUTO_INCREMENT,
-            `citizenid` VARCHAR(50) NOT NULL,
-            `plate` VARCHAR(20) NOT NULL,
-            `passed` TINYINT(1) NOT NULL,
-            `inspector` VARCHAR(100) DEFAULT NULL,
-            `notes` TEXT DEFAULT NULL,
-            `expiry_date` VARCHAR(30) DEFAULT NULL,
-            `date` VARCHAR(30) NOT NULL,
-            PRIMARY KEY (`id`),
-            KEY `citizenid` (`citizenid`),
-            KEY `plate` (`plate`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-    ]])
-    MySQL.query.await([[
         CREATE TABLE IF NOT EXISTS `dvla_penalty_points` (
             `id` INT(11) NOT NULL AUTO_INCREMENT,
             `citizenid` VARCHAR(50) NOT NULL,
@@ -491,8 +463,7 @@ QBCore.Functions.CreateCallback('dvla:server:getData', function(source, cb)
     local practicalTests= MySQL.query.await('SELECT * FROM dvla_practical_tests WHERE citizenid = ? ORDER BY id DESC LIMIT 10', { citizenid })
     local penalties     = MySQL.query.await('SELECT * FROM dvla_penalty_points WHERE citizenid = ? ORDER BY id DESC', { citizenid })
 
-    local job            = Player.PlayerData.job.name
-    local isMOTInspector = hasJob(job, Config.MOTInspectorJobs)
+    local job = Player.PlayerData.job.name
 
     -- Build a safe categories list to send to the NUI (strip checkpoints to keep payload small)
     local categoriesForUI = {}
@@ -519,8 +490,6 @@ QBCore.Functions.CreateCallback('dvla:server:getData', function(source, cb)
         penalties      = penalties,
         playerName     = Player.PlayerData.charinfo.firstname .. ' ' .. Player.PlayerData.charinfo.lastname,
         job            = job,
-        isMOTInspector = isMOTInspector,
-        pendingMOT     = isMOTInspector and pendingMOT or {},
         categories     = categoriesForUI,
     })
 end)
@@ -537,7 +506,7 @@ QBCore.Functions.CreateCallback('dvla:server:submitTheory', function(source, cb,
 
     -- A theory test has to be booked (and paid for) on lsgov.co.uk first. The booking is spent here.
     if bookingRequired() and not consumeBooking(citizenid, 'theory', '') then
-        return cb({ success = false, reason = 'You need to book your theory test on lsgov.co.uk first.' })
+        return cb({ success = false, reason = T('err.needTheoryBooking') })
     end
 
     MySQL.insert.await(
@@ -560,9 +529,9 @@ QBCore.Functions.CreateCallback('dvla:server:submitTheory', function(source, cb,
                 { getDate(), citizenid }
             )
         end
-        TriggerClientEvent('QBCore:Notify', source, 'Theory Test Passed! Score: ' .. score .. '/' .. Config.TheoryTest.totalQuestions, 'success')
+        TriggerClientEvent('QBCore:Notify', source, T('toast.theoryPassed', score, Config.TheoryTest.totalQuestions), 'success')
     else
-        TriggerClientEvent('QBCore:Notify', source, 'Theory Test Failed. Score: ' .. score .. '/' .. Config.TheoryTest.totalQuestions .. '. Pass mark: ' .. Config.TheoryTest.passMark, 'error')
+        TriggerClientEvent('QBCore:Notify', source, T('toast.theoryFailed', score, Config.TheoryTest.totalQuestions, Config.TheoryTest.passMark), 'error')
     end
 
     local updatedTests = MySQL.query.await('SELECT * FROM dvla_theory_tests WHERE citizenid = ? ORDER BY id DESC LIMIT 10', { citizenid })
@@ -572,105 +541,6 @@ QBCore.Functions.CreateCallback('dvla:server:submitTheory', function(source, cb,
 end)
 
 
-
--- ──────────────────────────────────────────────────────────────────────────────
---  CALLBACK: BOOK MOT
--- ──────────────────────────────────────────────────────────────────────────────
-
-QBCore.Functions.CreateCallback('dvla:server:bookMOT', function(source, cb, plate)
-    local Player = QBCore.Functions.GetPlayer(source)
-    if not Player then return cb({ success = false }) end
-
-    if not plate or plate == '' then
-        return cb({ success = false, reason = 'No vehicle plate provided.' })
-    end
-
-    local citizenid = Player.PlayerData.citizenid
-    local name      = Player.PlayerData.charinfo.firstname .. ' ' .. Player.PlayerData.charinfo.lastname
-
-    -- Already in queue
-    for _, v in ipairs(pendingMOT) do
-        if v.plate == plate then
-            return cb({ success = false, reason = 'This vehicle is already in the MOT queue.' })
-        end
-    end
-
-    -- MOT fee (cash first, then bank)
-    if not charge(Player, Config.Fees.mot, 'dvla-mot-fee', false) then
-        return cb({ success = false, reason = ('You need %s%d to book an MOT.'):format('£', Config.Fees.mot or 0) })
-    end
-
-    table.insert(pendingMOT, {
-        citizenid = citizenid,
-        name      = name,
-        plate     = plate,
-        source    = source,
-        bookedAt  = getDateTime(),
-    })
-
-    notifyOnlinePlayers(Config.MOTInspectorJobs, 'New MOT booking: ' .. plate .. ' — Owner: ' .. name, 'primary')
-    TriggerClientEvent('QBCore:Notify', source, 'MOT booked for ' .. plate .. '. An inspector has been notified.', 'success')
-    if (Config.Fees.mot or 0) > 0 then
-        TriggerClientEvent('QBCore:Notify', source, ('MOT fee of £%d paid.'):format(Config.Fees.mot), 'primary')
-    end
-
-    cb({ success = true, pendingMOT = pendingMOT })
-end)
-
--- ──────────────────────────────────────────────────────────────────────────────
---  CALLBACK: GET PENDING MOT (Inspector refresh)
--- ──────────────────────────────────────────────────────────────────────────────
-
-QBCore.Functions.CreateCallback('dvla:server:getPendingMOT', function(source, cb)
-    local Player = QBCore.Functions.GetPlayer(source)
-    if not Player then return cb({}) end
-    if not hasJob(Player.PlayerData.job.name, Config.MOTInspectorJobs) then return cb({}) end
-    cb(pendingMOT)
-end)
-
--- ──────────────────────────────────────────────────────────────────────────────
---  CALLBACK: COMPLETE MOT INSPECTION
--- ──────────────────────────────────────────────────────────────────────────────
-
-QBCore.Functions.CreateCallback('dvla:server:completeMOT', function(source, cb, citizenid, plate, passed, notes)
-    local Inspector = QBCore.Functions.GetPlayer(source)
-    if not Inspector then return cb({ success = false }) end
-    if not hasJob(Inspector.PlayerData.job.name, Config.MOTInspectorJobs) then
-        return cb({ success = false, reason = 'You are not an authorised MOT inspector.' })
-    end
-
-    local inspectorName = Inspector.PlayerData.charinfo.firstname .. ' ' .. Inspector.PlayerData.charinfo.lastname
-
-    -- Remove from queue
-    for i, v in ipairs(pendingMOT) do
-        if v.plate == plate then table.remove(pendingMOT, i) break end
-    end
-
-    local expiryDate = nil
-    if passed then
-        expiryDate = os.date('%d/%m/%Y', os.time() + (Config.MOTTest.validityMonths * 30 * 24 * 3600))
-    end
-
-    MySQL.insert.await(
-        'INSERT INTO dvla_mot_tests (citizenid, plate, passed, inspector, notes, expiry_date, date) VALUES (?,?,?,?,?,?,?)',
-        { citizenid, plate, passed and 1 or 0, inspectorName, notes or '', expiryDate or '', getDateTime() }
-    )
-
-    -- Tell the government site (as-browser), so the vehicle checker shows the MOT.
-    if GetResourceState('as-browser') == 'started' then
-        local expiryUnix = passed and (os.time() + (Config.MOTTest.validityMonths * 30 * 24 * 3600)) or nil
-        pcall(function() exports['as-browser']:setMotResult(plate, passed and true or false, expiryUnix, notes or '') end)
-    end
-
-    if passed then
-        notifyByCitizenId(citizenid, 'MOT PASSED for ' .. plate .. '. Valid until: ' .. expiryDate, 'success')
-    else
-        notifyByCitizenId(citizenid, 'MOT FAILED for ' .. plate .. '. Reason: ' .. (notes ~= '' and notes or 'No reason provided'), 'error')
-    end
-
-    TriggerClientEvent('QBCore:Notify', source, 'MOT inspection result submitted.', 'success')
-    cb({ success = true, pendingMOT = pendingMOT })
-end)
 
 -- ──────────────────────────────────────────────────────────────────────────────
 --  COMMAND: /addpoints [playerid] [offence_code]
@@ -683,12 +553,12 @@ RegisterCommand('addpoints', function(source, args)
     if not Officer then return end
 
     if not hasJob(Officer.PlayerData.job.name, Config.PenaltyJobs) then
-        TriggerClientEvent('QBCore:Notify', source, 'You do not have permission to issue penalty points.', 'error')
+        TriggerClientEvent('QBCore:Notify', source, T('toast.noPermissionPoints'), 'error')
         return
     end
 
     if not args[1] or not args[2] then
-        TriggerClientEvent('QBCore:Notify', source, 'Usage: /addpoints [playerID] [offenceCode]  e.g. /addpoints 1 SP30', 'error')
+        TriggerClientEvent('QBCore:Notify', source, T('toast.addpointsUsage'), 'error')
         return
     end
 
@@ -697,7 +567,7 @@ RegisterCommand('addpoints', function(source, args)
 
     local Target = QBCore.Functions.GetPlayer(targetId)
     if not Target then
-        TriggerClientEvent('QBCore:Notify', source, 'Player not found.', 'error')
+        TriggerClientEvent('QBCore:Notify', source, T('err.playerNotFound'), 'error')
         return
     end
 
@@ -709,7 +579,7 @@ RegisterCommand('addpoints', function(source, args)
     if not offence then
         local codes = ''
         for _, v in ipairs(Config.PenaltyOffences) do codes = codes .. v.code .. ' ' end
-        TriggerClientEvent('QBCore:Notify', source, 'Invalid offence code. Valid codes: ' .. codes, 'error')
+        TriggerClientEvent('QBCore:Notify', source, T('toast.invalidOffence', codes), 'error')
         return
     end
 
@@ -729,11 +599,11 @@ RegisterCommand('addpoints', function(source, args)
 
     if totalPoints >= Config.PenaltyPoints.maxPoints and Config.PenaltyPoints.autoDisqualify then
         MySQL.update.await("UPDATE dvla_licences SET suspended = 1, licence_type = 'suspended' WHERE citizenid = ?", { citizenid })
-        notifyByCitizenId(citizenid, 'Your driving licence has been automatically DISQUALIFIED — 12 penalty points reached.', 'error')
+        notifyByCitizenId(citizenid, T('toast.disqualified'), 'error')
     end
 
-    TriggerClientEvent('QBCore:Notify', source,   offence.points .. ' penalty points issued to ' .. targetName .. ' (' .. offence.code .. ')', 'success')
-    TriggerClientEvent('QBCore:Notify', targetId, 'You have received ' .. offence.points .. ' penalty points: ' .. offence.offence, 'error')
+    TriggerClientEvent('QBCore:Notify', source,   T('toast.pointsIssued', offence.points, targetName, offence.code), 'success')
+    TriggerClientEvent('QBCore:Notify', targetId, T('toast.pointsReceived', offence.points, offence.offence), 'error')
     TriggerClientEvent('dvla:client:refreshPoints', targetId, totalPoints)
 end, false)
 
@@ -746,14 +616,14 @@ RegisterCommand('dvlaoffences', function(source, args)
     local Officer = QBCore.Functions.GetPlayer(source)
     if not Officer then return end
     if not hasJob(Officer.PlayerData.job.name, Config.PenaltyJobs) then
-        TriggerClientEvent('QBCore:Notify', source, 'No permission.', 'error')
+        TriggerClientEvent('QBCore:Notify', source, T('toast.noPermission'), 'error')
         return
     end
     for _, v in ipairs(Config.PenaltyOffences) do
         TriggerClientEvent('chat:addMessage', source, {
             color = { 255, 165, 0 },
             multiline = false,
-            args = { 'DVLA', v.code .. ' (' .. v.points .. ' pts) — ' .. v.offence }
+            args = { T('chat.sender'), T('chat.offenceLine', v.code, v.points, v.offence) }
         })
     end
 end, false)
@@ -774,7 +644,7 @@ QBCore.Functions.CreateCallback('dvla:server:completeAIPractical', function(sour
     -- Must have passed theory
     local lic = MySQL.query.await('SELECT * FROM dvla_licences WHERE citizenid = ?', { citizenid })
     if not lic[1] or not flag(lic[1].theory_passed) then
-        return cb({ success = false, reason = 'Theory test not passed.' })
+        return cb({ success = false, reason = T('err.theoryNotPassed') })
     end
 
     -- Decode existing categories (stored as JSON array string e.g. '["B","AM"]')
@@ -786,7 +656,7 @@ QBCore.Functions.CreateCallback('dvla:server:completeAIPractical', function(sour
 
     -- Already holds this category
     if heldCategories[categoryLabel] then
-        return cb({ success = false, reason = 'You already hold the ' .. categoryLabel .. ' category.' })
+        return cb({ success = false, reason = T('err.alreadyHoldNamed', categoryLabel) })
     end
 
     -- Check prerequisites from config
@@ -795,17 +665,17 @@ QBCore.Functions.CreateCallback('dvla:server:completeAIPractical', function(sour
         if cat.label == categoryLabel then categoryConfig = cat break end
     end
     if not categoryConfig then
-        return cb({ success = false, reason = 'Unknown category: ' .. categoryLabel })
+        return cb({ success = false, reason = T('err.unknownCategory', categoryLabel) })
     end
     for _, req in ipairs(categoryConfig.requires) do
         if not heldCategories[req] then
-            return cb({ success = false, reason = 'You must hold the ' .. req .. ' category first.' })
+            return cb({ success = false, reason = T('err.mustHoldFirst', req) })
         end
     end
 
     -- A practical test has to be booked on lsgov.co.uk first. The booking is spent here.
     if bookingRequired() and not consumeBooking(citizenid, 'practical', categoryLabel) then
-        return cb({ success = false, reason = 'You need to book this practical test on lsgov.co.uk first.' })
+        return cb({ success = false, reason = T('err.needPracticalBooking') })
     end
 
     -- Record the test attempt
@@ -845,10 +715,10 @@ QBCore.Functions.CreateCallback('dvla:server:completeAIPractical', function(sour
             lastname    = charinfo.lastname   or '',
             birthdate   = charinfo.birthdate  or '',
             gender      = charinfo.gender     or 0,
-            nationality = 'BRITISH CITIZEN',
+            nationality = T('item.nationality'),
             issuedate   = issueDate,
             expirydate  = expiryDate,
-            type        = 'Full UK Driving Licence',
+            type        = T('item.licenceType'),
             categories  = catDisplay,
             serial      = issueSerial(citizenid),
         }
@@ -861,7 +731,7 @@ QBCore.Functions.CreateCallback('dvla:server:completeAIPractical', function(sour
         Player.Functions.AddItem('driver_license', 1, false, licenceInfo)
         TriggerClientEvent('inventory:client:ItemBox', source, QBCore.Shared.Items['driver_license'], 'add')
         TriggerClientEvent('QBCore:Notify', source,
-            'Category ' .. categoryLabel .. ' PASSED! 🎉 Your licence now includes: ' .. catDisplay, 'success')
+            T('toast.categoryPassed', categoryLabel, catDisplay), 'success')
     end
 
     local finalLic = MySQL.query.await('SELECT * FROM dvla_licences WHERE citizenid = ?', { citizenid })
@@ -882,38 +752,38 @@ end)
 local replaceBusy = {}
 local function replaceLicence(source, data)
     data = type(data) == 'table' and data or {}
-    if replaceBusy[source] then return nil, 'Please wait, your last request is still being processed.' end
+    if replaceBusy[source] then return nil, T('err.busy') end
     replaceBusy[source] = true
     local ok, res, err = pcall(function()
         local Player = QBCore.Functions.GetPlayer(source)
-        if not Player then return nil, 'You are not signed in.' end
+        if not Player then return nil, T('err.notSignedIn') end
         local citizenid = Player.PlayerData.citizenid
         initPlayer(citizenid)
 
         local lic = MySQL.single.await('SELECT * FROM dvla_licences WHERE citizenid = ?', { citizenid })
-        if not lic or not flag(lic.practical_passed) then return nil, 'No qualifying licence found on record.' end
-        if pendingReplacement(citizenid) then return nil, 'You already have a replacement licence on its way.' end
+        if not lic or not flag(lic.practical_passed) then return nil, T('replace.noQualifying') end
+        if pendingReplacement(citizenid) then return nil, T('replace.pending') end
 
         local mode = deliveryMode()
         local lockerId = ''
         if mode == 'locker' then
             lockerId = tostring(data.lockerId or '')
-            if not lockerLabel(lockerId) then return nil, 'Choose where to collect your licence.' end
+            if not lockerLabel(lockerId) then return nil, T('replace.chooseLocker') end
         end
 
         local fee = Config.Fees.replace or 20
         if not charge(Player, fee, 'dvla-licence-replacement', true) then
-            return nil, 'You do not have enough money in your bank account.'
+            return nil, T('err.noFunds')
         end
 
         local ci = Player.PlayerData.charinfo or {}
         local serial = newSerial()
         local info = {
             firstname = ci.firstname or '', lastname = ci.lastname or '', birthdate = ci.birthdate or '',
-            gender = ci.gender or 0, nationality = 'BRITISH CITIZEN',
+            gender = ci.gender or 0, nationality = T('item.nationality'),
             issuedate = lic.issue_date or getDate(),
             expirydate = os.date('%d/%m/%Y', os.time() + (10 * 365 * 24 * 3600)),
-            type = 'Full UK Driving Licence',
+            type = T('item.licenceType'),
         }
         local applied = os.time()
         local inserted = pcall(function()
@@ -923,7 +793,7 @@ local function replaceLicence(source, data)
         end)
         if not inserted then
             Player.Functions.AddMoney('bank', fee, 'dvla-replacement-refund')
-            return nil, 'We could not process your application. You have not been charged, please try again.'
+            return nil, T('replace.saveFailed')
         end
 
         -- the old licence is cancelled now; the new one carries this serial when it arrives
@@ -935,7 +805,7 @@ local function replaceLicence(source, data)
         }
     end)
     replaceBusy[source] = nil
-    if not ok then print('^1[DVLA] ^7replacement failed: ' .. tostring(res)); return nil, 'Something went wrong. Please try again.' end
+    if not ok then print('^1[DVLA] ^7replacement failed: ' .. tostring(res)); return nil, T('err.generic') end
     return res, err
 end
 
@@ -971,7 +841,7 @@ local function deliverReplacement(row)
             return exports['as-postalprime']:createParcel(cid, {
                 ref = row.ref, sender = Config.Replace.sender, lockerId = lockerId,
                 prepSeconds = Config.Replace.prepSeconds, expireSeconds = Config.Replace.expireSeconds,
-                items = { { item = 'driver_license', label = 'Driving licence', icon = '🪪', qty = 1, metadata = info } },
+                items = { { item = 'driver_license', label = T('parcel.itemLabel'), icon = '🪪', qty = 1, metadata = info } },
             })
         end)
         if not ok then print('^1[DVLA] ^7createParcel failed: ' .. tostring(sent)); return false end
@@ -980,10 +850,9 @@ local function deliverReplacement(row)
             return false -- 'busy': the player has another Postal Prime order; try again next pass
         end
         MySQL.update.await("UPDATE dvla_replacements SET status = 'sent' WHERE id = ?", { row.id })
-        local label = lockerLabel(lockerId) or 'your locker'
-        phoneNotify(src, 'Driving licence sent', ('Your replacement driving licence has been sent to %s.'):format(label))
-        phoneMail(src, cid, 'Your replacement driving licence is on its way',
-            ('Hello,\n\nYour replacement driving licence has been sent to %s. Open Postal Prime for your pickup code, then collect it from the locker.'):format(label))
+        local label = lockerLabel(lockerId) or T('parcel.yourLocker')
+        phoneNotify(src, T('phone.sent.title'), T('phone.sent.body', label))
+        phoneMail(src, cid, T('mail.sent.subject'), T('mail.sent.body', label))
         return true
     end
 
@@ -994,8 +863,8 @@ local function deliverReplacement(row)
     Player.Functions.AddItem('driver_license', 1, false, info)
     TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['driver_license'], 'add')
     MySQL.update.await("UPDATE dvla_replacements SET status = 'done' WHERE id = ?", { row.id })
-    phoneNotify(src, 'Driving licence issued', 'Your replacement driving licence has been added to your inventory.')
-    phoneMail(src, cid, 'Your replacement driving licence', 'Hello,\n\nYour replacement driving licence is ready and is in your inventory.')
+    phoneNotify(src, T('phone.issued.title'), T('phone.issued.body'))
+    phoneMail(src, cid, T('mail.issued.subject'), T('mail.issued.body'))
     return true
 end
 
@@ -1025,7 +894,7 @@ end)
 
 --- The in-world portal no longer hands out licences: replacements are ordered on the website.
 QBCore.Functions.CreateCallback('dvla:server:replaceLicence', function(source, cb)
-    cb({ success = false, reason = 'Replacement licences are ordered on lsgov.co.uk (Driving licence and tests) and delivered to a Postal Prime locker.' })
+    cb({ success = false, reason = T('replace.portalMessage') })
 end)
 
 -- ──────────────────────────────────────────────────────────────────────────────
@@ -1034,23 +903,23 @@ end)
 
 QBCore.Functions.CreateCallback('dvla:server:canStartPractical', function(source, cb, categoryLabel)
     local Player = QBCore.Functions.GetPlayer(source)
-    if not Player then return cb({ success = false, reason = 'Player not found.' }) end
+    if not Player then return cb({ success = false, reason = T('err.playerNotFound') }) end
     local citizenid = Player.PlayerData.citizenid
     categoryLabel = tostring(categoryLabel or 'B')
 
     local lic = MySQL.single.await('SELECT * FROM dvla_licences WHERE citizenid = ?', { citizenid })
-    if not lic or not flag(lic.theory_passed) then return cb({ success = false, reason = 'Theory test not passed.' }) end
-    if flag(lic.suspended) then return cb({ success = false, reason = 'Your licence is suspended.' }) end
+    if not lic or not flag(lic.theory_passed) then return cb({ success = false, reason = T('err.theoryNotPassed') }) end
+    if flag(lic.suspended) then return cb({ success = false, reason = T('err.suspended') }) end
 
     local cat = findCategory(categoryLabel)
-    if not cat then return cb({ success = false, reason = 'Unknown category: ' .. categoryLabel }) end
+    if not cat then return cb({ success = false, reason = T('err.unknownCategory', categoryLabel) }) end
     local held = heldCategories(lic)
-    if held[categoryLabel] then return cb({ success = false, reason = 'You already hold the ' .. categoryLabel .. ' category.' }) end
+    if held[categoryLabel] then return cb({ success = false, reason = T('err.alreadyHoldNamed', categoryLabel) }) end
     for _, req in ipairs(cat.requires or {}) do
-        if not held[req] then return cb({ success = false, reason = 'You must hold the ' .. req .. ' category first.' }) end
+        if not held[req] then return cb({ success = false, reason = T('err.mustHoldFirst', req) }) end
     end
     if bookingRequired() and unusedCount(citizenid, 'practical', categoryLabel) == 0 then
-        return cb({ success = false, reason = 'Book this practical test on lsgov.co.uk first.' })
+        return cb({ success = false, reason = T('err.bookPracticalFirst') })
     end
     cb({ success = true })
 end)
@@ -1082,13 +951,13 @@ end
 --- Once a licence has a card serial (a replacement was ordered, or a test was passed) items with another serial are cancelled.
 local function hasLicenceItem(source)
     local Player = QBCore.Functions.GetPlayer(source)
-    if not Player then return false, 'You are not signed in.' end
+    if not Player then return false, T('err.notSignedIn') end
     local metas = licenceItemMetas(source)
-    if #metas == 0 then return false, 'You are not carrying a driving licence.' end
+    if #metas == 0 then return false, T('err.noLicenceItem') end
     local serial = MySQL.scalar.await('SELECT card_serial FROM dvla_licences WHERE citizenid = ?', { Player.PlayerData.citizenid })
     if serial == nil or serial == '' then return true end
     for _, m in ipairs(metas) do if m.serial == serial then return true end end
-    return false, 'This driving licence has been cancelled and replaced.'
+    return false, T('err.licenceCancelled')
 end
 
 local function parseDob(dob)
@@ -1132,11 +1001,11 @@ end
 --- The licence as printed on the card. Returns the card, or nil and a message.
 local function buildCard(source)
     local Player = QBCore.Functions.GetPlayer(source)
-    if not Player then return nil, 'You are not signed in.' end
+    if not Player then return nil, T('err.notSignedIn') end
     local cid = Player.PlayerData.citizenid
     initPlayer(cid)
     local lic = MySQL.single.await('SELECT * FROM dvla_licences WHERE citizenid = ?', { cid })
-    if not lic then return nil, 'No licence on record.' end
+    if not lic then return nil, T('err.noLicenceRecord') end
     local ci = Player.PlayerData.charinfo or {}
 
     local cats = heldList(lic)
@@ -1171,7 +1040,7 @@ QBCore.Functions.CreateCallback('dvla:server:getCard', function(source, cb)
     local has, why = hasLicenceItem(source)
     if not has then return cb({ error = why }) end
     local card, err = buildCard(source)
-    if not card then return cb({ error = err or 'This licence is not readable.' }) end
+    if not card then return cb({ error = err or T('err.licenceUnreadable') }) end
     cb({ card = card, needPhoto = Config.Card.photo == true and card.photo == nil })
 end)
 
@@ -1215,13 +1084,13 @@ RegisterNetEvent('dvla:server:showCard', function()
         end
     end
     if not best then
-        return TriggerClientEvent('QBCore:Notify', src, 'There is nobody close enough to show your licence to.', 'error')
+        return TriggerClientEvent('QBCore:Notify', src, T('toast.nobodyNear'), 'error')
     end
     local Player = QBCore.Functions.GetPlayer(src)
     local ci = Player and Player.PlayerData.charinfo or {}
     local fromName = ((ci.firstname or '') .. ' ' .. (ci.lastname or '')):gsub('^%s+', '')
     TriggerClientEvent('dvla:client:showCard', best, card, (fromName))
-    TriggerClientEvent('QBCore:Notify', src, 'You showed your driving licence.', 'success')
+    TriggerClientEvent('QBCore:Notify', src, T('toast.showedLicence'), 'success')
 end)
 
 --- Using the driver_license item opens the card. Registered again a few seconds after start in case
